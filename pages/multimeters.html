@@ -204,6 +204,104 @@ Units:
 
 </section>
 
+
+<section class="section">
+
+<div class="container">
+
+<h2>Understanding Every Button and Port</h2>
+
+<p class="section-text">
+
+Although every multimeter looks slightly different, almost every modern digital multimeter contains the same basic controls. Learning these controls makes any brand of meter much easier to use.
+
+</p>
+
+<div class="cards">
+
+<div class="card">
+
+<h3>COM Port</h3>
+
+<p>
+
+The COM (Common) port is where the black test lead is connected.
+
+This lead is the reference point for nearly every measurement.
+
+The black probe almost never moves.
+
+</p>
+
+</div>
+
+<div class="card">
+
+<h3>V Ω Hz Port</h3>
+
+<p>
+
+This is the most commonly used input.
+
+Use this port for:
+
+• DC Voltage
+
+• AC Voltage
+
+• Resistance
+
+• Continuity
+
+• Diode Test
+
+• Frequency
+
+• Capacitance
+
+</p>
+
+</div>
+
+<div class="card">
+
+<h3>mA / μA Port</h3>
+
+<p>
+
+Used for measuring very small currents.
+
+Protected by an internal fuse.
+
+Never use this port when measuring large motors or battery banks.
+
+</p>
+
+</div>
+
+<div class="card">
+
+<h3>10A or 20A Port</h3>
+
+<p>
+
+Used only for large current measurements.
+
+Always move the red lead back to the voltage jack when finished.
+
+Leaving the probe here is one of the most common beginner mistakes.
+
+</p>
+
+</div>
+
+</div>
+
+</div>
+
+</section>
+  
+
 <!-- ===================================================== -->
 
 <section class="section">
@@ -607,7 +705,670 @@ Measures how many cycles occur every second.
 
 </section>
 
+
+<br>
+
+<!-- ================================================= -->
+
+<div class="card">
+
+<h3>Duty Cycle ( % )</h3>
+
+<p>
+
+Duty cycle measures the percentage of time a signal remains ON during one complete cycle.
+
+Duty cycle is commonly used when working with pulse-width modulation (PWM), motor controllers, automotive sensors, and some solar charge controllers.
+
+</p>
+
+<h4>Units</h4>
+
+<p>
+
+Percent (%)
+
+</p>
+
+<table>
+
+<tr>
+
+<th>Duty Cycle</th>
+
+<th>Meaning</th>
+
+</tr>
+
+<tr>
+
+<td>0%</td>
+
+<td>Signal is always OFF</td>
+
+</tr>
+
+<tr>
+
+<td>25%</td>
+
+<td>Signal is ON one quarter of the time</td>
+
+</tr>
+
+<tr>
+
+<td>50%</td>
+
+<td>Equal ON and OFF time</td>
+
+</tr>
+
+<tr>
+
+<td>100%</td>
+
+<td>Signal is always ON</td>
+
+</tr>
+
+</table>
+
+</div>
+
+<br>
+
+<!-- ================================================= -->
+
+<div class="card">
+
+<h3>Temperature ( °C / °F )</h3>
+
+<p>
+
+Some digital multimeters include a thermocouple input that measures temperature.
+
+This is useful for checking battery temperatures, electrical enclosures, motors, transformers, heatsinks, and HVAC systems.
+
+</p>
+
+<h4>Units</h4>
+
+<ul>
+
+<li>Degrees Celsius (°C)</li>
+
+<li>Degrees Fahrenheit (°F)</li>
+
+</ul>
+
+</div>
+
+<br>
+
+<!-- ================================================= -->
+
+<div class="card">
+
+<h3>NCV (Non-Contact Voltage)</h3>
+
+<p>
+
+NCV allows the meter to detect the presence of live AC voltage without making direct electrical contact.
+
+This feature is commonly used to quickly identify energized wires, outlets, and electrical cables.
+
+</p>
+
+<h4>Important</h4>
+
+<p>
+
+NCV should only be used as a quick indicator.
+
+Always confirm voltage using the AC Voltage setting before working on any electrical system.
+
+</p>
+
+</div>
+
+<br>
+
+<!-- ================================================= -->
+
+<div class="card">
+
+<h3>hFE Transistor Test</h3>
+
+<p>
+
+Some multimeters include an hFE socket for testing bipolar junction transistors (BJTs).
+
+The hFE value represents the transistor's DC current gain, also known as Beta (β).
+
+</p>
+
+<h4>Common Transistor Pins</h4>
+
+<ul>
+
+<li>E = Emitter</li>
+
+<li>B = Base</li>
+
+<li>C = Collector</li>
+
+</ul>
+
+<p>
+
+To perform the test, insert the transistor leads into the matching E, B, and C holes for either an NPN or PNP transistor. The displayed number represents the approximate current gain of the transistor.
+
+</p>
+
+<table>
+
+<tr>
+
+<th>Typical hFE</th>
+
+<th>Description</th>
+
+</tr>
+
+<tr>
+
+<td>20–50</td>
+
+<td>Low gain power transistor</td>
+
+</tr>
+
+<tr>
+
+<td>75–150</td>
+
+<td>General purpose transistor</td>
+
+</tr>
+
+<tr>
+
+<td>150–300+</td>
+
+<td>High gain transistor</td>
+
+</tr>
+
+</table>
+
+</div>
+
+<br>
+
+<!-- ================================================= -->
+
+<div class="card">
+
+<h3>REL (Relative Mode)</h3>
+
+<p>
+
+Relative mode stores the current reading as a reference and subtracts it from future measurements.
+
+This is useful for comparing resistance, voltage drops, or compensating for probe resistance.
+
+</p>
+
+</div>
+
+<br>
+
+<!-- ================================================= -->
+
+<div class="card">
+
+<h3>HOLD</h3>
+
+<p>
+
+The HOLD function freezes the current measurement on the display.
+
+This is useful when measuring in hard-to-see locations or when recording readings.
+
+</p>
+
+</div>
+
+<br>
+
+<!-- ================================================= -->
+
+<div class="card">
+
+<h3>MIN / MAX Recording</h3>
+
+<p>
+
+Some multimeters automatically record the lowest and highest measured values over time.
+
+This feature is useful when monitoring fluctuating voltages, battery charging systems, generators, or solar installations.
+
+</p>
+
+</div>
+
+<br>
+
+<!-- ================================================= -->
+
+<div class="card">
+
+<h3>Auto Range vs Manual Range</h3>
+
+<p>
+
+Auto-ranging multimeters automatically select the correct measurement range.
+
+Manual-ranging multimeters require the user to choose the measurement range before taking a reading.
+
+Auto-ranging meters are generally easier for beginners, while manual-ranging meters provide greater control in some applications.
+
+</p>
+
+</div>
+
+<br>
+
+<!-- ================================================= -->
+
+<div class="card">
+
+<h3>Low Battery Indicator</h3>
+
+<p>
+
+When the battery symbol appears on the display, replace the multimeter battery as soon as possible.
+
+A weak battery can cause inaccurate measurements and unreliable readings.
+
+</p>
+
+</div>
+
+</div>
+
+</section>
+
 <!-- ===================================================== -->
+
+
+<section class="section dark">
+
+<div class="container">
+
+<h2>Understanding Electrical Units</h2>
+
+<p class="section-text">
+
+Every measurement taken with a multimeter is displayed using standard electrical units. Understanding these units is just as important as knowing which dial setting to use. The table below explains the most common units found in electrical, electronic, automotive, and off-grid solar systems.
+
+</p>
+
+<table>
+
+<tr>
+
+<th>Symbol</th>
+
+<th>Unit</th>
+
+<th>Measures</th>
+
+<th>Common Examples</th>
+
+</tr>
+
+<tr>
+
+<td>V</td>
+
+<td>Volt</td>
+
+<td>Electrical Pressure</td>
+
+<td>Solar Panels, Batteries, Wall Outlets</td>
+
+</tr>
+
+<tr>
+
+<td>mV</td>
+
+<td>Millivolt</td>
+
+<td>1/1000 of a Volt</td>
+
+<td>Sensors, Electronics, Circuit Boards</td>
+
+</tr>
+
+<tr>
+
+<td>kV</td>
+
+<td>Kilovolt</td>
+
+<td>1000 Volts</td>
+
+<td>Power Transmission Systems</td>
+
+</tr>
+
+<tr>
+
+<td>A</td>
+
+<td>Ampere</td>
+
+<td>Electrical Current</td>
+
+<td>Motors, Inverters, Battery Banks</td>
+
+</tr>
+
+<tr>
+
+<td>mA</td>
+
+<td>Milliamp</td>
+
+<td>1/1000 of an Amp</td>
+
+<td>LEDs, Arduino, Small Electronics</td>
+
+</tr>
+
+<tr>
+
+<td>μA</td>
+
+<td>Microamp</td>
+
+<td>1/1,000,000 of an Amp</td>
+
+<td>Sensors, Low Power Electronics</td>
+
+</tr>
+
+<tr>
+
+<td>Ω</td>
+
+<td>Ohm</td>
+
+<td>Resistance</td>
+
+<td>Resistors, Wiring, Components</td>
+
+</tr>
+
+<tr>
+
+<td>kΩ</td>
+
+<td>Kilo Ohm</td>
+
+<td>1000 Ohms</td>
+
+<td>Electronic Components</td>
+
+</tr>
+
+<tr>
+
+<td>MΩ</td>
+
+<td>Mega Ohm</td>
+
+<td>1,000,000 Ohms</td>
+
+<td>Insulation Testing</td>
+
+</tr>
+
+<tr>
+
+<td>W</td>
+
+<td>Watt</td>
+
+<td>Electrical Power</td>
+
+<td>Appliances, Solar Panels</td>
+
+</tr>
+
+<tr>
+
+<td>kW</td>
+
+<td>Kilowatt</td>
+
+<td>1000 Watts</td>
+
+<td>Home Power Systems</td>
+
+</tr>
+
+<tr>
+
+<td>Wh</td>
+
+<td>Watt Hour</td>
+
+<td>Stored Energy</td>
+
+<td>Battery Capacity</td>
+
+</tr>
+
+<tr>
+
+<td>kWh</td>
+
+<td>Kilowatt Hour</td>
+
+<td>1000 Watt Hours</td>
+
+<td>Electric Bills, Solar Production</td>
+
+</tr>
+
+<tr>
+
+<td>Hz</td>
+
+<td>Hertz</td>
+
+<td>Frequency</td>
+
+<td>Generators, Inverters, Grid Power</td>
+
+</tr>
+
+<tr>
+
+<td>%</td>
+
+<td>Percent</td>
+
+<td>Duty Cycle</td>
+
+<td>PWM Controllers</td>
+
+</tr>
+
+<tr>
+
+<td>F</td>
+
+<td>Farad</td>
+
+<td>Capacitance</td>
+
+<td>Capacitors</td>
+
+</tr>
+
+<tr>
+
+<td>°C</td>
+
+<td>Degrees Celsius</td>
+
+<td>Temperature</td>
+
+<td>Motors, Batteries, Electronics</td>
+
+</tr>
+
+<tr>
+
+<td>°F</td>
+
+<td>Degrees Fahrenheit</td>
+
+<td>Temperature</td>
+
+<td>HVAC, Automotive</td>
+
+</tr>
+
+</table>
+
+<h3>Metric Prefixes</h3>
+
+<p>
+
+Many electrical measurements use metric prefixes to represent very large or very small values. Understanding these prefixes makes it much easier to interpret readings shown on a multimeter.
+
+</p>
+
+<table>
+
+<tr>
+
+<th>Prefix</th>
+
+<th>Symbol</th>
+
+<th>Multiplier</th>
+
+<th>Example</th>
+
+</tr>
+
+<tr>
+
+<td>Micro</td>
+
+<td>μ</td>
+
+<td>0.000001</td>
+
+<td>1 μA = 0.000001 A</td>
+
+</tr>
+
+<tr>
+
+<td>Milli</td>
+
+<td>m</td>
+
+<td>0.001</td>
+
+<td>1000 mA = 1 A</td>
+
+</tr>
+
+<tr>
+
+<td>Base Unit</td>
+
+<td>—</td>
+
+<td>1</td>
+
+<td>1 V = 1 Volt</td>
+
+</tr>
+
+<tr>
+
+<td>Kilo</td>
+
+<td>k</td>
+
+<td>1000</td>
+
+<td>1 kΩ = 1000 Ω</td>
+
+</tr>
+
+<tr>
+
+<td>Mega</td>
+
+<td>M</td>
+
+<td>1,000,000</td>
+
+<td>1 MΩ = 1,000,000 Ω</td>
+
+</tr>
+
+<tr>
+
+<td>Giga</td>
+
+<td>G</td>
+
+<td>1,000,000,000</td>
+
+<td>Power Transmission Systems</td>
+
+</tr>
+
+</table>
+
+<div class="card">
+
+<h3>Remember These Common Electrical Relationships</h3>
+
+<ul>
+
+<li>1 Volt (V) = Electrical Pressure</li>
+<li>1 Amp (A) = Electrical Current</li>
+<li>1 Watt (W) = 1 Volt × 1 Amp</li>
+<li>1000 Watts = 1 Kilowatt (kW)</li>
+<li>1000 Milliamps = 1 Amp</li>
+<li>1000 Ohms = 1 Kilo Ohm</li>
+<li>1,000,000 Ohms = 1 Mega Ohm</li>
+<li>1 Kilowatt Hour (kWh) = 1000 Watt Hours</li>
+<li>North American AC Power = 60 Hz</li>
+<li>Most European AC Power = 50 Hz</li>
+</ul>
+
+</div>
+
+</div>
+
+</section>
+
+
+  
 
 <section class="section dark">
 
