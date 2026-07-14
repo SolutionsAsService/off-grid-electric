@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Electricity Guide | Off Grid Solar & Electrical Fundamentals</title>
+
+<meta name="description" content="
+A complete beginner to advanced guide explaining electricity,
+AC vs DC, volts, amps, watts, solar systems, batteries,
+inverters, charge controllers, and multimeter testing.
+">
+
+
+<link rel="stylesheet" href="css/style.css">
+
+</head>
+
+
+<body>
+
+
+<!-- ================= HEADER ================= -->
+
+<header class="header">
+
+<div class="container nav">
+
+<div class="logo">
+⚡ ELECTRICITY GUIDE
+</div>
+
+
+<nav>
+
+<a href="index.html">
+Home
+</a>
+
+<a href="pages/ac-vs-dc.html">
+AC vs DC
+</a>
+
+<a href="pages/solar-basics.html">
+Solar
+</a>
+
+<a href="pages/off-grid-systems.html">
+Off Grid
+</a>
+
+<a href="pages/multimeters.html">
+Multimeters
+</a>
+
+
+</nav>
+
+
+</div>
+
+</header>
+
+
+
+
+
+<!-- ================= HERO ================= -->
+
+
+<section class="hero">
+
+
+<div class="container">
+
+
+<div class="hero-content">
+
+
+<h1>
+Understanding Electricity
+<br>
+From The Ground Up
+</h1>
+
+
+<p>
+
+A complete guide to understanding electrical systems,
+solar power, batteries, inverters, measurements,
+and designing reliable off-grid energy systems.
+
+</p>
+
+
+<div class="hero-buttons">
+
+
+<a class="button primary"
+href="#fundamentals">
+
+Start Learning
+
+</a>
+
+
+<a class="button secondary"
+href="pages/off-grid-systems.html">
+
+Explore Off Grid Systems
+
+</a>
+
+
+</div>
+
+
+</div>
+
+
+</div>
+
+
+</section>
+
+
+
+
+
+<!-- ================= INTRO ================= -->
+
+<section class="section">
+
+
+<div class="container">
+
+
+<h2>
+What You Will Learn
+</h2>
+
+
+<p class="section-text">
+
+Electricity can seem complicated, but every electrical
+system follows the same basic principles.
+
+Voltage creates electrical pressure.
+Current is the movement of electrons.
+Resistance controls the flow.
+Power describes how much energy is being used.
+
+Understanding these four concepts allows you to design,
+repair, and troubleshoot everything from a small battery
+system to a complete solar-powered home.
+
+</p>
+
+
+
+<div class="cards">
+
+
+<div class="card">
+
+<h3>
+⚡ Voltage (Volts)
+</h3>
+
+<p>
+
+Voltage is electrical pressure.
+
+It describes the force pushing electrons
+through a circuit.
+
+Example:
+
+A 12V battery has approximately
+12 volts of electrical potential.
+
+</p>
+
+</div>
+
+
+
+
+<div class="card">
+
+<h3>
+🔋 Current (Amps)
+</h3>
+
+<p>
+
+Current is the amount of electricity flowing.
+
+Measured in amps (A).
+
+Higher loads require more current.
+
+Example:
+
+A 1000 watt inverter running from
+a 12V battery can require over 80 amps.
+
+</p>
+
+</div>
+
+
+
+
+
+<div class="card">
+
+<h3>
+🔥 Power (Watts)
+</h3>
+
+<p>
+
+Watts measure electrical power.
+
+The basic formula:
+
+<br><br>
+
+<strong>
+Watts = Volts × Amps
+</strong>
+
+<br><br>
+
+A 12V battery delivering 10 amps
+produces 120 watts.
+
+</p>
+
+
+</div>
+
+
+</div>
+
+
+</div>
+
+
+</section>
+
+
+
+
+
+
+
+
+<!-- ================= AC DC ================= -->
+
+
+<section class="section dark">
+
+
+<div class="container">
+
+
+<h2>
+AC vs DC Electricity
+</h2>
+
+
+<div class="split">
+
+
+<div>
+
+
+<h3>
+Direct Current (DC)
+</h3>
+
+
+<p>
+
+DC electricity flows in one constant direction.
+
+Examples:
+
+</p>
+
+
+<ul>
+
+<li>Solar panels</li>
+<li>Batteries</li>
+<li>USB devices</li>
+<li>Vehicle electrical systems</li>
+<li>Battery banks</li>
+
+</ul>
+
+
+</div>
+
+
+
+
+<div>
+
+
+<h3>
+Alternating Current (AC)
+</h3>
+
+
+<p>
+
+AC electricity changes direction many times
+per second.
+
+Examples:
+
+</p>
+
+
+<ul>
+
+<li>House outlets</li>
+<li>Grid power</li>
+<li>Generators</li>
+<li>Household appliances</li>
+
+</ul>
+
+
+</div>
+
+
+
+</div>
+
+
+<p>
+
+Off-grid systems usually create electricity as DC
+from solar panels and batteries, then use an inverter
+to convert DC into AC for normal household devices.
+
+</p>
+
+
+</div>
+
+
+</section>
+
+
+
+
+
+
+
+<!-- ================= SOLAR ================= -->
+
+
+<section class="section">
+
+
+<div class="container">
+
+
+<h2>
+Understanding Solar Power
+</h2>
+
+
+
+<p>
+
+Solar panels produce DC electricity.
+
+A solar panel specification sheet contains
+important electrical ratings:
+
+</p>
+
+
+
+<div class="cards">
+
+
+<div class="card">
+
+<h3>
+Voc
+</h3>
+
+<p>
+
+Open Circuit Voltage.
+
+The maximum voltage a solar panel produces
+when no load is connected.
+
+</p>
+
+</div>
+
+
+
+
+<div class="card">
+
+<h3>
+Vmp
+</h3>
+
+<p>
+
+Voltage at Maximum Power.
+
+The operating voltage where the panel
+produces its rated power.
+
+</p>
+
+</div>
+
+
+
+
+<div class="card">
+
+<h3>
+Imp / Isc
+</h3>
+
+<p>
+
+Current ratings.
+
+Imp is operating current.
+
+Isc is maximum short circuit current.
+
+</p>
+
+</div>
+
+
+
+</div>
+
+
+
+</div>
+
+
+</section>
+
+
+
+
+
+
+
+
+<!-- ================= OFF GRID ================= -->
+
+
+<section class="section dark">
+
+
+<div class="container">
+
+
+<h2>
+How Off Grid Systems Work
+</h2>
+
+
+
+<div class="system-flow">
+
+
+<div>
+☀️
+<br>
+Solar Panels
+
+</div>
+
+
+<div>
+⬇
+
+</div>
+
+
+<div>
+🔌
+
+<br>
+
+Charge Controller
+
+</div>
+
+
+<div>
+
+⬇
+
+</div>
+
+
+<div>
+
+🔋
+
+<br>
+
+Battery Bank
+
+</div>
+
+
+<div>
+
+⬇
+
+</div>
+
+
+<div>
+
+⚡
+
+<br>
+
+Inverter
+
+</div>
+
+
+<div>
+
+⬇
+
+</div>
+
+
+<div>
+
+🏠
+
+<br>
+
+AC Loads
+
+</div>
+
+
+</div>
+
+
+
+
+<p>
+
+A complete off-grid electrical system must balance:
+
+</p>
+
+
+<ul>
+
+<li>
+Solar production
+</li>
+
+<li>
+Battery storage capacity
+</li>
+
+<li>
+Load consumption
+</li>
+
+<li>
+Voltage limits
+</li>
+
+<li>
+Current limits
+</li>
+
+<li>
+Safety protection
+</li>
+
+
+</ul>
+
+
+</div>
+
+
+</section>
+
+
+
+
+
+
+
+
+<!-- ================= MULTIMETER ================= -->
+
+
+<section class="section">
+
+
+<div class="container">
+
+
+<h2>
+Using A Multimeter
+</h2>
+
+
+
+<p>
+
+A multimeter is one of the most important
+tools for understanding electrical systems.
+
+It allows you to measure:
+
+</p>
+
+
+<div class="cards">
+
+
+<div class="card">
+
+<h3>
+DC Voltage (DCV)
+</h3>
+
+
+<p>
+
+Used for measuring batteries and solar panels.
+
+Example:
+
+A solar panel reading:
+
+18V DC
+
+means the panel is producing
+18 volts of direct current potential.
+
+</p>
+
+
+</div>
+
+
+
+<div class="card">
+
+<h3>
+Current (Amps)
+</h3>
+
+
+<p>
+
+Measures how much electrical flow is moving
+through a circuit.
+
+Current measurements require the meter
+to be connected differently than voltage.
+
+</p>
+
+
+</div>
+
+
+
+
+<div class="card">
+
+<h3>
+Resistance (Ω)
+</h3>
+
+
+<p>
+
+Measures opposition to electrical flow.
+
+Used for checking wires,
+components, and continuity.
+
+</p>
+
+
+</div>
+
+
+
+</div>
+
+
+</div>
+
+
+</section>
+
+
+
+
+
+
+
+
+<!-- ================= FOOTER ================= -->
+
+
+<footer>
+
+
+<div class="container">
+
+
+<h3>
+Electricity Guide
+</h3>
+
+
+<p>
+
+Learning electrical systems through
+understanding fundamentals.
+
+</p>
+
+
+<p>
+
+© 2026 Electricity Guide
+
+</p>
+
+
+</div>
+
+
+</footer>
+
+
+
+
+</body>
+
+</html>
