@@ -42,7 +42,7 @@ strong { font-weight: 800; }
 .hero { position: relative; padding: clamp(56px, 10vw, 128px) 0 clamp(48px, 8vw, 96px); border-bottom: 2px solid var(--ink);
   background: linear-gradient(90deg, var(--rule) 1px, transparent 1px) 0 0 / 48px 48px, linear-gradient(var(--rule) 1px, transparent 1px) 0 0 / 48px 48px; }
 .hero-content { max-width: 880px; }
-.hero h1 { margin-bottom: 24px; }
+.hero h1 { margin-bottom: 24px; font-size: clamp(2.3rem, .9rem + 3vw, 3.4rem); }
 .hero h1::first-line { color: var(--ink); }
 .hero p { font-size: clamp(1.1rem, 1rem + .45vw, 1.35rem); color: var(--ink-2); max-width: 52ch; background: var(--paper); }
 .hero-buttons { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px; }
@@ -51,6 +51,35 @@ strong { font-weight: 800; }
 .button.primary:hover { transform: translate(-1px, -1px); box-shadow: 5px 5px 0 var(--ink); }
 .button.secondary { background: var(--card); color: var(--ink); }
 .button.secondary:hover { background: var(--ink); color: var(--paper); }
+
+/* the landing graphic: a working circuit, drawn as a bold schematic */
+.hero-grid { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); gap: 24px clamp(24px, 4vw, 56px); align-items: center; }
+.circuit { margin: 0; background: var(--card); border: 3px solid var(--ink); box-shadow: 10px 10px 0 var(--volt); padding: clamp(10px, 2vw, 22px); }
+.circuit svg { display: block; width: 100%; height: auto; }
+.circuit figcaption { font: 500 .95rem var(--mono); border-top: 2px solid var(--ink); margin-top: 8px; padding-top: 8px; }
+.circuit .wire { fill: none; stroke: var(--ink); stroke-width: 10; stroke-linejoin: round; }
+.circuit .wire.thin { stroke-width: 6; }
+.circuit .flow { fill: none; stroke: var(--volt); stroke-width: 4; stroke-dasharray: 10 22; stroke-linejoin: round; animation: flow 1.1s linear infinite; }
+@keyframes flow { to { stroke-dashoffset: -32; } }
+.circuit .sun circle { fill: var(--volt); stroke: var(--ink); stroke-width: 4; }
+.circuit .rays path { stroke: var(--ink); stroke-width: 6; stroke-linecap: round; }
+.circuit .panel rect { fill: #1f3a5c; stroke: var(--ink); stroke-width: 6; }
+.circuit .panel path { stroke: #8fb4dc; stroke-width: 2; }
+.circuit .box rect { fill: var(--paper); stroke: var(--ink); stroke-width: 6; }
+.circuit .box text, .circuit .val { fill: var(--ink); font: 800 18px var(--sans); letter-spacing: .04em; }
+.circuit .val { font: 600 26px var(--mono); }
+.circuit .sine { fill: none; stroke: var(--copper); stroke-width: 6; stroke-linecap: round; }
+.circuit .battery path { stroke: var(--ink); stroke-width: 10; }
+.circuit .bulb circle { fill: var(--volt); stroke: var(--ink); stroke-width: 5; }
+.circuit .bulb .glow { fill: var(--volt); stroke: none; opacity: .35; animation: glow 2.2s ease-in-out infinite; transform-origin: 330px 268px; }
+.circuit .bulb path { fill: none; stroke: var(--ink); stroke-width: 4; stroke-linejoin: round; }
+@keyframes glow { 50% { transform: scale(1.35); opacity: .12; } }
+.circuit .tag rect { fill: #15161a; }
+.circuit .tag .val { fill: var(--volt); }
+.circuit .tag.hot rect { fill: var(--volt); stroke: var(--ink); stroke-width: 4; }
+.circuit .tag.hot .val { fill: #15161a; font-size: 30px; }
+@media (max-width: 900px) { .hero-grid { grid-template-columns: 1fr; } .circuit { max-width: 560px; } }
+@media (prefers-reduced-motion: reduce) { .circuit .flow, .circuit .bulb .glow { animation: none; } }
 
 /* sections */
 .section { padding: clamp(48px, 7vw, 96px) 0; border-bottom: 1px solid var(--rule); }

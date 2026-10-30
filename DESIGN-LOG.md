@@ -1,5 +1,19 @@
 # Design log: Electricity Guide (DADA-lite, minimal run)
 
+## Grade: C (first pass), then retried
+
+The user graded the first pass a **C**, because the landing page had no unique, bold graphic: it was a styled version of the old page, with nothing you would remember. Lesson for cheap runs: even a one-pass redesign needs one signature visual on the landing page, and for a topic like electricity it should be cheap to draw.
+
+**Retry:** the hero now has a large schematic drawn in inline SVG.
+- Sun → solar panel → charge controller → 12 V battery → inverter → light bulb, wired in a closed loop.
+- Current animates along the wires as hazard-yellow dashes, and the bulb pulses.
+- Tags show the guide's own worked example: 12 V × 10 A = 120 W.
+- Motion stops under prefers-reduced-motion.
+- The figure sits in a hard-shadowed card beside the headline on desktop and below it on phones.
+- Re-measured: no overflow and no contrast failures in light or dark.
+
+## First pass
+
 This was a deliberately cheap run, at the user's request: one pass, no critic panel, and the existing content and markup are kept. The previous version is on branch `legacy-2026-10-30`.
 
 - **Concept:** an equipment rating plate.

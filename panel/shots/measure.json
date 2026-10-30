@@ -2,7 +2,7 @@
  "index-1440-light": {
   "scrollW": 1440,
   "innerW": 1440,
-  "height": 4165,
+  "height": 4116,
   "lowContrast": [
    {
     "el": "div",
@@ -27,14 +27,15 @@
   ],
   "h1": {
    "text": "\nUnderstanding Electricity\n\nFrom The Ground Up\n",
-   "fontSize": "83.2px",
+   "fontSize": "54.4px",
    "family": "Archivo",
    "wdth": "normal"
   },
   "fontsLoaded": [
    "Archivo 400",
    "Archivo 600",
-   "Archivo 800"
+   "Archivo 800",
+   "IBM Plex Mono 500"
   ],
   "loadtest": [],
   "focusWalk": [
@@ -73,7 +74,7 @@
  "pages/multimeters-1440-light": {
   "scrollW": 1440,
   "innerW": 1440,
-  "height": 13626,
+  "height": 13492,
   "lowContrast": [],
   "smallTargets": [],
   "links": [
@@ -90,7 +91,7 @@
   ],
   "h1": {
    "text": "\nThe Complete Digital Multimeter Guide\n",
-   "fontSize": "83.2px",
+   "fontSize": "54.4px",
    "family": "Archivo",
    "wdth": "normal"
   },
@@ -155,7 +156,7 @@
   ],
   "h1": {
    "text": "Open circuit.",
-   "fontSize": "83.2px",
+   "fontSize": "54.4px",
    "family": "Archivo",
    "wdth": "normal"
   },
@@ -201,7 +202,7 @@
  "index-390-light": {
   "scrollW": 390,
   "innerW": 390,
-  "height": 5845,
+  "height": 6204,
   "lowContrast": [
    {
     "el": "div",
@@ -226,14 +227,15 @@
   ],
   "h1": {
    "text": "\nUnderstanding Electricity\n\nFrom The Ground Up\n",
-   "fontSize": "41.9px",
+   "fontSize": "36.8px",
    "family": "Archivo",
    "wdth": "normal"
   },
   "fontsLoaded": [
    "Archivo 400",
    "Archivo 600",
-   "Archivo 800"
+   "Archivo 800",
+   "IBM Plex Mono 500"
   ],
   "loadtest": [],
   "focusWalk": [
@@ -272,7 +274,7 @@
  "pages/multimeters-390-light": {
   "scrollW": 390,
   "innerW": 390,
-  "height": 17233,
+  "height": 17214,
   "lowContrast": [],
   "smallTargets": [],
   "links": [
@@ -289,7 +291,7 @@
   ],
   "h1": {
    "text": "\nThe Complete Digital Multimeter Guide\n",
-   "fontSize": "41.9px",
+   "fontSize": "36.8px",
    "family": "Archivo",
    "wdth": "normal"
   },
@@ -354,7 +356,7 @@
   ],
   "h1": {
    "text": "Open circuit.",
-   "fontSize": "41.9px",
+   "fontSize": "36.8px",
    "family": "Archivo",
    "wdth": "normal"
   },
@@ -400,7 +402,7 @@
  "index-1440-dark": {
   "scrollW": 1440,
   "innerW": 1440,
-  "height": 4165,
+  "height": 4116,
   "lowContrast": [],
   "smallTargets": [],
   "links": [
@@ -418,21 +420,22 @@
   ],
   "h1": {
    "text": "\nUnderstanding Electricity\n\nFrom The Ground Up\n",
-   "fontSize": "83.2px",
+   "fontSize": "54.4px",
    "family": "Archivo",
    "wdth": "normal"
   },
   "fontsLoaded": [
    "Archivo 400",
    "Archivo 600",
-   "Archivo 800"
+   "Archivo 800",
+   "IBM Plex Mono 500"
   ],
   "loadtest": []
  },
  "pages/multimeters-1440-dark": {
   "scrollW": 1440,
   "innerW": 1440,
-  "height": 13626,
+  "height": 13492,
   "lowContrast": [],
   "smallTargets": [],
   "links": [
@@ -449,7 +452,7 @@
   ],
   "h1": {
    "text": "\nThe Complete Digital Multimeter Guide\n",
-   "fontSize": "83.2px",
+   "fontSize": "54.4px",
    "family": "Archivo",
    "wdth": "normal"
   },
@@ -482,7 +485,7 @@
   ],
   "h1": {
    "text": "Open circuit.",
-   "fontSize": "83.2px",
+   "fontSize": "54.4px",
    "family": "Archivo",
    "wdth": "normal"
   },
@@ -496,7 +499,7 @@
  "index-390-dark": {
   "scrollW": 390,
   "innerW": 390,
-  "height": 5845,
+  "height": 6204,
   "lowContrast": [],
   "smallTargets": [],
   "links": [
@@ -514,21 +517,22 @@
   ],
   "h1": {
    "text": "\nUnderstanding Electricity\n\nFrom The Ground Up\n",
-   "fontSize": "41.9px",
+   "fontSize": "36.8px",
    "family": "Archivo",
    "wdth": "normal"
   },
   "fontsLoaded": [
    "Archivo 400",
    "Archivo 600",
-   "Archivo 800"
+   "Archivo 800",
+   "IBM Plex Mono 500"
   ],
   "loadtest": []
  },
  "pages/multimeters-390-dark": {
   "scrollW": 390,
   "innerW": 390,
-  "height": 17233,
+  "height": 17214,
   "lowContrast": [],
   "smallTargets": [],
   "links": [
@@ -545,7 +549,7 @@
   ],
   "h1": {
    "text": "\nThe Complete Digital Multimeter Guide\n",
-   "fontSize": "41.9px",
+   "fontSize": "36.8px",
    "family": "Archivo",
    "wdth": "normal"
   },
@@ -578,7 +582,7 @@
   ],
   "h1": {
    "text": "Open circuit.",
-   "fontSize": "41.9px",
+   "fontSize": "36.8px",
    "family": "Archivo",
    "wdth": "normal"
   },
