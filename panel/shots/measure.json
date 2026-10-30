@@ -1,0 +1,592 @@
+{
+ "index-1440-light": {
+  "scrollW": 1440,
+  "innerW": 1440,
+  "height": 4165,
+  "lowContrast": [
+   {
+    "el": "div",
+    "text": "\u2b07",
+    "ratio": 3.25,
+    "need": 3
+   }
+  ],
+  "smallTargets": [],
+  "links": [
+   "#main",
+   "index.html",
+   "index.html#basics",
+   "index.html#ac-dc",
+   "index.html#solar",
+   "index.html#system",
+   "pages/multimeters.html",
+   "#basics",
+   "#system",
+   "https://github.com/SolutionsAsService/off-grid-electric",
+   "https://demo.ultimatebusinessmachines.com/portfolio"
+  ],
+  "h1": {
+   "text": "\nUnderstanding Electricity\n\nFrom The Ground Up\n",
+   "fontSize": "83.2px",
+   "family": "Archivo",
+   "wdth": "normal"
+  },
+  "fontsLoaded": [
+   "Archivo 400",
+   "Archivo 600",
+   "Archivo 800"
+  ],
+  "loadtest": [],
+  "focusWalk": [
+   {
+    "el": "A Skip to content",
+    "outline": "solid 3px rgb(164, 81, 31)",
+    "inView": true
+   },
+   {
+    "el": "A Electricity Guide",
+    "outline": "solid 3px rgb(164, 81, 31)",
+    "inView": true
+   },
+   {
+    "el": "A Basics",
+    "outline": "solid 3px rgb(164, 81, 31)",
+    "inView": true
+   },
+   {
+    "el": "A AC vs DC",
+    "outline": "solid 3px rgb(164, 81, 31)",
+    "inView": true
+   },
+   {
+    "el": "A Solar",
+    "outline": "solid 3px rgb(164, 81, 31)",
+    "inView": true
+   },
+   {
+    "el": "A Off-grid system",
+    "outline": "solid 3px rgb(164, 81, 31)",
+    "inView": true
+   }
+  ]
+ },
+ "pages/multimeters-1440-light": {
+  "scrollW": 1440,
+  "innerW": 1440,
+  "height": 13626,
+  "lowContrast": [],
+  "smallTargets": [],
+  "links": [
+   "#main",
+   "../index.html",
+   "../index.html#basics",
+   "../index.html#ac-dc",
+   "../index.html#solar",
+   "../index.html#system",
+   "../pages/multimeters.html",
+   "#parts",
+   "https://github.com/SolutionsAsService/off-grid-electric",
+   "https://demo.ultimatebusinessmachines.com/portfolio"
+  ],
+  "h1": {
+   "text": "\nThe Complete Digital Multimeter Guide\n",
+   "fontSize": "83.2px",
+   "family": "Archivo",
+   "wdth": "normal"
+  },
+  "fontsLoaded": [
+   "Archivo 400",
+   "Archivo 600",
+   "Archivo 800",
+   "IBM Plex Mono 500"
+  ],
+  "loadtest": [],
+  "focusWalk": [
+   {
+    "el": "A Skip to content",
+    "outline": "solid 3px rgb(164, 81, 31)",
+    "inView": true
+   },
+   {
+    "el": "A Electricity Guide",
+    "outline": "solid 3px rgb(164, 81, 31)",
+    "inView": true
+   },
+   {
+    "el": "A Basics",
+    "outline": "solid 3px rgb(164, 81, 31)",
+    "inView": true
+   },
+   {
+    "el": "A AC vs DC",
+    "outline": "solid 3px rgb(164, 81, 31)",
+    "inView": true
+   },
+   {
+    "el": "A Solar",
+    "outline": "solid 3px rgb(164, 81, 31)",
+    "inView": true
+   },
+   {
+    "el": "A Off-grid system",
+    "outline": "solid 3px rgb(164, 81, 31)",
+    "inView": true
+   }
+  ]
+ },
+ "404-1440-light": {
+  "scrollW": 1440,
+  "innerW": 1440,
+  "height": 900,
+  "lowContrast": [],
+  "smallTargets": [],
+  "links": [
+   "#main",
+   "index.html",
+   "index.html#basics",
+   "index.html#ac-dc",
+   "index.html#solar",
+   "index.html#system",
+   "pages/multimeters.html",
+   "index.html",
+   "pages/multimeters.html",
+   "https://github.com/SolutionsAsService/off-grid-electric",
+   "https://demo.ultimatebusinessmachines.com/portfolio"
+  ],
+  "h1": {
+   "text": "Open circuit.",
+   "fontSize": "83.2px",
+   "family": "Archivo",
+   "wdth": "normal"
+  },
+  "fontsLoaded": [
+   "Archivo 400",
+   "Archivo 600",
+   "Archivo 800"
+  ],
+  "loadtest": [],
+  "focusWalk": [
+   {
+    "el": "A Skip to content",
+    "outline": "solid 3px rgb(164, 81, 31)",
+    "inView": true
+   },
+   {
+    "el": "A Electricity Guide",
+    "outline": "solid 3px rgb(164, 81, 31)",
+    "inView": true
+   },
+   {
+    "el": "A Basics",
+    "outline": "solid 3px rgb(164, 81, 31)",
+    "inView": true
+   },
+   {
+    "el": "A AC vs DC",
+    "outline": "solid 3px rgb(164, 81, 31)",
+    "inView": true
+   },
+   {
+    "el": "A Solar",
+    "outline": "solid 3px rgb(164, 81, 31)",
+    "inView": true
+   },
+   {
+    "el": "A Off-grid system",
+    "outline": "solid 3px rgb(164, 81, 31)",
+    "inView": true
+   }
+  ]
+ },
+ "index-390-light": {
+  "scrollW": 390,
+  "innerW": 390,
+  "height": 5845,
+  "lowContrast": [
+   {
+    "el": "div",
+    "text": "\u2b07",
+    "ratio": 3.25,
+    "need": 3
+   }
+  ],
+  "smallTargets": [],
+  "links": [
+   "#main",
+   "index.html",
+   "index.html#basics",
+   "index.html#ac-dc",
+   "index.html#solar",
+   "index.html#system",
+   "pages/multimeters.html",
+   "#basics",
+   "#system",
+   "https://github.com/SolutionsAsService/off-grid-electric",
+   "https://demo.ultimatebusinessmachines.com/portfolio"
+  ],
+  "h1": {
+   "text": "\nUnderstanding Electricity\n\nFrom The Ground Up\n",
+   "fontSize": "41.9px",
+   "family": "Archivo",
+   "wdth": "normal"
+  },
+  "fontsLoaded": [
+   "Archivo 400",
+   "Archivo 600",
+   "Archivo 800"
+  ],
+  "loadtest": [],
+  "focusWalk": [
+   {
+    "el": "A Skip to content",
+    "outline": "solid 3px rgb(164, 81, 31)",
+    "inView": true
+   },
+   {
+    "el": "A Electricity Guide",
+    "outline": "solid 3px rgb(164, 81, 31)",
+    "inView": true
+   },
+   {
+    "el": "A Basics",
+    "outline": "solid 3px rgb(164, 81, 31)",
+    "inView": true
+   },
+   {
+    "el": "A AC vs DC",
+    "outline": "solid 3px rgb(164, 81, 31)",
+    "inView": true
+   },
+   {
+    "el": "A Solar",
+    "outline": "solid 3px rgb(164, 81, 31)",
+    "inView": true
+   },
+   {
+    "el": "A Off-grid system",
+    "outline": "solid 3px rgb(164, 81, 31)",
+    "inView": true
+   }
+  ]
+ },
+ "pages/multimeters-390-light": {
+  "scrollW": 390,
+  "innerW": 390,
+  "height": 17233,
+  "lowContrast": [],
+  "smallTargets": [],
+  "links": [
+   "#main",
+   "../index.html",
+   "../index.html#basics",
+   "../index.html#ac-dc",
+   "../index.html#solar",
+   "../index.html#system",
+   "../pages/multimeters.html",
+   "#parts",
+   "https://github.com/SolutionsAsService/off-grid-electric",
+   "https://demo.ultimatebusinessmachines.com/portfolio"
+  ],
+  "h1": {
+   "text": "\nThe Complete Digital Multimeter Guide\n",
+   "fontSize": "41.9px",
+   "family": "Archivo",
+   "wdth": "normal"
+  },
+  "fontsLoaded": [
+   "Archivo 400",
+   "Archivo 600",
+   "Archivo 800",
+   "IBM Plex Mono 500"
+  ],
+  "loadtest": [],
+  "focusWalk": [
+   {
+    "el": "A Skip to content",
+    "outline": "solid 3px rgb(164, 81, 31)",
+    "inView": true
+   },
+   {
+    "el": "A Electricity Guide",
+    "outline": "solid 3px rgb(164, 81, 31)",
+    "inView": true
+   },
+   {
+    "el": "A Basics",
+    "outline": "solid 3px rgb(164, 81, 31)",
+    "inView": true
+   },
+   {
+    "el": "A AC vs DC",
+    "outline": "solid 3px rgb(164, 81, 31)",
+    "inView": true
+   },
+   {
+    "el": "A Solar",
+    "outline": "solid 3px rgb(164, 81, 31)",
+    "inView": true
+   },
+   {
+    "el": "A Off-grid system",
+    "outline": "solid 3px rgb(164, 81, 31)",
+    "inView": true
+   }
+  ]
+ },
+ "404-390-light": {
+  "scrollW": 390,
+  "innerW": 390,
+  "height": 844,
+  "lowContrast": [],
+  "smallTargets": [],
+  "links": [
+   "#main",
+   "index.html",
+   "index.html#basics",
+   "index.html#ac-dc",
+   "index.html#solar",
+   "index.html#system",
+   "pages/multimeters.html",
+   "index.html",
+   "pages/multimeters.html",
+   "https://github.com/SolutionsAsService/off-grid-electric",
+   "https://demo.ultimatebusinessmachines.com/portfolio"
+  ],
+  "h1": {
+   "text": "Open circuit.",
+   "fontSize": "41.9px",
+   "family": "Archivo",
+   "wdth": "normal"
+  },
+  "fontsLoaded": [
+   "Archivo 400",
+   "Archivo 600",
+   "Archivo 800"
+  ],
+  "loadtest": [],
+  "focusWalk": [
+   {
+    "el": "A Skip to content",
+    "outline": "solid 3px rgb(164, 81, 31)",
+    "inView": true
+   },
+   {
+    "el": "A Electricity Guide",
+    "outline": "solid 3px rgb(164, 81, 31)",
+    "inView": true
+   },
+   {
+    "el": "A Basics",
+    "outline": "solid 3px rgb(164, 81, 31)",
+    "inView": true
+   },
+   {
+    "el": "A AC vs DC",
+    "outline": "solid 3px rgb(164, 81, 31)",
+    "inView": true
+   },
+   {
+    "el": "A Solar",
+    "outline": "solid 3px rgb(164, 81, 31)",
+    "inView": true
+   },
+   {
+    "el": "A Off-grid system",
+    "outline": "solid 3px rgb(164, 81, 31)",
+    "inView": true
+   }
+  ]
+ },
+ "index-1440-dark": {
+  "scrollW": 1440,
+  "innerW": 1440,
+  "height": 4165,
+  "lowContrast": [],
+  "smallTargets": [],
+  "links": [
+   "#main",
+   "index.html",
+   "index.html#basics",
+   "index.html#ac-dc",
+   "index.html#solar",
+   "index.html#system",
+   "pages/multimeters.html",
+   "#basics",
+   "#system",
+   "https://github.com/SolutionsAsService/off-grid-electric",
+   "https://demo.ultimatebusinessmachines.com/portfolio"
+  ],
+  "h1": {
+   "text": "\nUnderstanding Electricity\n\nFrom The Ground Up\n",
+   "fontSize": "83.2px",
+   "family": "Archivo",
+   "wdth": "normal"
+  },
+  "fontsLoaded": [
+   "Archivo 400",
+   "Archivo 600",
+   "Archivo 800"
+  ],
+  "loadtest": []
+ },
+ "pages/multimeters-1440-dark": {
+  "scrollW": 1440,
+  "innerW": 1440,
+  "height": 13626,
+  "lowContrast": [],
+  "smallTargets": [],
+  "links": [
+   "#main",
+   "../index.html",
+   "../index.html#basics",
+   "../index.html#ac-dc",
+   "../index.html#solar",
+   "../index.html#system",
+   "../pages/multimeters.html",
+   "#parts",
+   "https://github.com/SolutionsAsService/off-grid-electric",
+   "https://demo.ultimatebusinessmachines.com/portfolio"
+  ],
+  "h1": {
+   "text": "\nThe Complete Digital Multimeter Guide\n",
+   "fontSize": "83.2px",
+   "family": "Archivo",
+   "wdth": "normal"
+  },
+  "fontsLoaded": [
+   "Archivo 400",
+   "Archivo 600",
+   "Archivo 800",
+   "IBM Plex Mono 500"
+  ],
+  "loadtest": []
+ },
+ "404-1440-dark": {
+  "scrollW": 1440,
+  "innerW": 1440,
+  "height": 900,
+  "lowContrast": [],
+  "smallTargets": [],
+  "links": [
+   "#main",
+   "index.html",
+   "index.html#basics",
+   "index.html#ac-dc",
+   "index.html#solar",
+   "index.html#system",
+   "pages/multimeters.html",
+   "index.html",
+   "pages/multimeters.html",
+   "https://github.com/SolutionsAsService/off-grid-electric",
+   "https://demo.ultimatebusinessmachines.com/portfolio"
+  ],
+  "h1": {
+   "text": "Open circuit.",
+   "fontSize": "83.2px",
+   "family": "Archivo",
+   "wdth": "normal"
+  },
+  "fontsLoaded": [
+   "Archivo 400",
+   "Archivo 600",
+   "Archivo 800"
+  ],
+  "loadtest": []
+ },
+ "index-390-dark": {
+  "scrollW": 390,
+  "innerW": 390,
+  "height": 5845,
+  "lowContrast": [],
+  "smallTargets": [],
+  "links": [
+   "#main",
+   "index.html",
+   "index.html#basics",
+   "index.html#ac-dc",
+   "index.html#solar",
+   "index.html#system",
+   "pages/multimeters.html",
+   "#basics",
+   "#system",
+   "https://github.com/SolutionsAsService/off-grid-electric",
+   "https://demo.ultimatebusinessmachines.com/portfolio"
+  ],
+  "h1": {
+   "text": "\nUnderstanding Electricity\n\nFrom The Ground Up\n",
+   "fontSize": "41.9px",
+   "family": "Archivo",
+   "wdth": "normal"
+  },
+  "fontsLoaded": [
+   "Archivo 400",
+   "Archivo 600",
+   "Archivo 800"
+  ],
+  "loadtest": []
+ },
+ "pages/multimeters-390-dark": {
+  "scrollW": 390,
+  "innerW": 390,
+  "height": 17233,
+  "lowContrast": [],
+  "smallTargets": [],
+  "links": [
+   "#main",
+   "../index.html",
+   "../index.html#basics",
+   "../index.html#ac-dc",
+   "../index.html#solar",
+   "../index.html#system",
+   "../pages/multimeters.html",
+   "#parts",
+   "https://github.com/SolutionsAsService/off-grid-electric",
+   "https://demo.ultimatebusinessmachines.com/portfolio"
+  ],
+  "h1": {
+   "text": "\nThe Complete Digital Multimeter Guide\n",
+   "fontSize": "41.9px",
+   "family": "Archivo",
+   "wdth": "normal"
+  },
+  "fontsLoaded": [
+   "Archivo 400",
+   "Archivo 600",
+   "Archivo 800",
+   "IBM Plex Mono 500"
+  ],
+  "loadtest": []
+ },
+ "404-390-dark": {
+  "scrollW": 390,
+  "innerW": 390,
+  "height": 844,
+  "lowContrast": [],
+  "smallTargets": [],
+  "links": [
+   "#main",
+   "index.html",
+   "index.html#basics",
+   "index.html#ac-dc",
+   "index.html#solar",
+   "index.html#system",
+   "pages/multimeters.html",
+   "index.html",
+   "pages/multimeters.html",
+   "https://github.com/SolutionsAsService/off-grid-electric",
+   "https://demo.ultimatebusinessmachines.com/portfolio"
+  ],
+  "h1": {
+   "text": "Open circuit.",
+   "fontSize": "41.9px",
+   "family": "Archivo",
+   "wdth": "normal"
+  },
+  "fontsLoaded": [
+   "Archivo 400",
+   "Archivo 600",
+   "Archivo 800"
+  ],
+  "loadtest": []
+ }
+}
