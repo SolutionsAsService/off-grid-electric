@@ -72,7 +72,7 @@ OG.boot(function (G) {
   // ---- the hero battery (pixel drawing)
   var hero = byId('hero'), H = { w: 0 }, hg
   function layoutHero() {
-    var W = Math.max(300, Math.round(hero.parentNode.clientWidth - 20)); if (W === H.w && hg) return false
+    var W = Math.max(240, Math.round(hero.parentNode.clientWidth - 20)); if (W === H.w && hg) return false
     var small = W < 560, h = small ? 292 : 252
     H = { w: W, h: h, small: small }
     hero.setAttribute('viewBox', '0 0 ' + W + ' ' + h); hero.setAttribute('width', W); hero.setAttribute('height', h)
@@ -140,7 +140,7 @@ OG.boot(function (G) {
   // ---- the chart (pixel drawing, a fixed power scale for the chosen panels)
   var chart = byId('chart'), K = { w: 0 }, kg
   function layoutChart() {
-    var W = Math.max(300, Math.round(chart.parentNode.clientWidth)); if (W === K.w && kg) return false
+    var W = Math.max(240, Math.round(chart.parentNode.clientWidth)); if (W === K.w && kg) return false
     var h = W < 520 ? 300 : 320
     var top = W < 520 ? 50 : 28
     K = { w: W, h: h, x0: 46, x1: W - 6, tTop: top, tBot: Math.round(h * 0.55), sTop: Math.round(h * 0.55) + 30, sBot: h - 28 }

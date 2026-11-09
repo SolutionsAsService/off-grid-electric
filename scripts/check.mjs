@@ -132,7 +132,7 @@ if (P.roundUp(740, 50) !== 750 || P.roundUp(750, 50) !== 750 || P.roundUp(416, 2
 if (!close(P.fuseAmps(40), 50)) bad('model: the fuse should be at least 125% of the continuous current')
 if (!close(P.restVolts(12.7, 24), 25.4) || !close(P.restVolts(12.7, 48), 50.8)) bad('model: a 24 V bank rests at twice and a 48 V bank at four times the 12 V figure')
 { const r = P.recommend(1997, 4.5, 0.75, 1.25, 2, 0.8, 12); if (!close(r.panelW, 1997 / (4.5 * 0.75) * 1.25) || !close(r.batteryWh, 1997 * 2 / 0.8) || !close(r.batteryAh, 1997 * 2 / 0.8 / 12)) bad('model: recommend') }
-{ const a = P.stringStatus(98.6, 100), b = P.stringStatus(89.2, 100), c = P.stringStatus(101, 100); if (a.state !== 'tight' || b.state !== 'ok' || c.state !== 'over') bad('model: a string within 10% of the controller limit is "tight", over the limit is "over"') }
+{ const a = P.stringStatus(98.6, 100), b = P.stringStatus(89.2, 100), c = P.stringStatus(101, 100), d = P.stringStatus(91, 100), e = P.stringStatus(89, 100); if (a.state !== 'tight' || b.state !== 'ok' || c.state !== 'over' || d.state !== 'tight' || e.state !== 'ok') bad('model: a string within 10% of the controller limit is "tight", over the limit is "over"') }
 if (P.wireStatus(2.9, 3) !== 'within' || P.wireStatus(3.1, 3) !== 'over') bad('model: wireStatus')
 {
   const mk = (o) => ({ panelW: 800, psh: 4.5, derate: 0.75, rise: 6, set: 18, batV: 12, batAh: 200, dod: 0.8, chgEff: 0.95, invEff: 0.9, invStandbyW: 10, loads: [{ w: 40, ac: true, from: 0, to: 24 }], ...o })
@@ -146,10 +146,22 @@ if (P.wireStatus(2.9, 3) !== 'within' || P.wireStatus(3.1, 3) !== 'over') bad('m
   { const k = run({ panelW: 0, batAh: 5, loads: [{ w: 3000, ac: true, from: 0, to: 24 }] }); if (k.c.inverter.peakAcW > 3000 * (k.sim.served[0] / k.sim.load[0]) + 1e-9) bad('checks: inverter peak must be the AC actually served') }
   if (run({ panelW: 800, batAh: 100, dod: 0.8, loads: [{ w: 90, ac: false, from: 18, to: 6 }] }).c.label !== 'TOO DEEP') bad('checks: a battery below its floor is TOO DEEP')
   { const k = run({ batAh: 200, loads: [{ w: 1500, ac: true, from: 12, to: 12.25 }, { w: 40, ac: true, from: 0, to: 24 }] }, { maxC: 0.25 }); if (k.c.label !== 'OVERLOAD' || k.c.current.state !== 'fail') bad('checks: 1,700 W from a 200 Ah lead-acid battery at 0.25C (50 A) must be an OVERLOAD'); if (!close(k.c.current.limitA, 50) || Math.abs(k.c.current.amps - (1500 / 0.9 + 10 + 40 / 0.9) / 12) > 1e-6) bad('checks: peak battery amps = bus watts / volts, limit = C x Ah') }
+  { // NO POWER outranks OVERLOAD when both are true; watch thresholds sit at 80% of the limit
+    const k = run({ panelW: 0, batAh: 5, loads: [{ w: 3000, ac: true, from: 0, to: 24 }] }, { maxC: 0.25 }); if (k.c.label !== 'NO POWER') bad('checks: when the battery is empty and a limit is exceeded the label is NO POWER')
+    const lo = run({ batAh: 100, loads: [{ w: 12 * 100 * 0.75, ac: false, from: 12, to: 12.25 }] }, { maxC: 1 }), hi = run({ batAh: 100, loads: [{ w: 12 * 100 * 0.85, ac: false, from: 12, to: 12.25 }] }, { maxC: 1 })
+    if (lo.c.current.state !== 'ok' || hi.c.current.state !== 'watch') bad('checks: 75% of the current limit is ok, 85% is watch')
+  }
   { const k = run({ loads: [{ w: 2500, ac: true, from: 12, to: 12.25 }] }, {}); if (k.c.inverter.state !== 'fail' || k.c.label !== 'OVERLOAD') bad('checks: 2,500 W of AC on a 2,000 W inverter must be an OVERLOAD') }
   { const k = run({ loads: [{ w: 1700, ac: true, from: 12, to: 12.25 }] }, {}); if (k.c.inverter.state !== 'watch' || k.c.label !== 'NEAR LIMIT') bad('checks: 1,700 W on a 2,000 W inverter (85%) should be WATCH and the overall label NEAR LIMIT') }
 }
 
+{ // constants that live in the page scripts: pinned so a quiet edit is noticed
+  const ck = read('assets/calc.js'), hj2 = read('assets/home.js')
+  if (!/0\.01724 \/ mm/.test(ck)) bad('calc.js: metric wire resistance should be 0.01724 ohm mm2 per metre / area')
+  if (!/Math\.ceil\(P\.fuseAmps\(a\)\)/.test(ck)) bad('calc.js: the fuse figure must round up')
+  if (!/P\.roundUp\(rec\.panelW, 50\)/.test(hj2) || !/P\.roundUp\(rec\.batteryAh, 25\)/.test(hj2)) bad('home.js: the purchase line must round up to 50 W and 25 Ah')
+  if (!/a > 30/.test(ck)) bad('calc.js: the current-rating caveat starts above 30 A')
+}
 // ---------------------------------------------------------------- the reviewed design constants (change them on purpose: update here too)
 {
   const pin = (what, got, want) => { if (JSON.stringify(got) !== JSON.stringify(want)) bad(`model.json: ${what} is ${JSON.stringify(got)}, the reviewed value is ${JSON.stringify(want)}`) }
