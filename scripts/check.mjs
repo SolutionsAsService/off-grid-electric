@@ -275,10 +275,10 @@ if (!/13\.3 to 13\.6 V/.test(text('multimeters.html')) || !/nearly flat/.test(te
   near(R({ dial: 'acv', red: 'ac_l', black: 'ac_n' }).value, 120, 1e-9, 'AC outlet')
   near(R({ red: 'ac_l', black: 'ac_n' }).value, 0, 1e-9, 'DC volts on an AC outlet reads zero')
   near(R({ dial: 'acv' }).value, 0, 1e-9, 'AC volts on a DC battery reads zero')
-  { const d = R({ red: 'cab_bat', black: 'cab_inv' }).value; near(d, i * cableOhm, 0.01, 'cable drop under load'); if (R({ red: 'cab_bat', black: 'cab_inv' }, W({ scenario: 'corroded' })).value < d) bad('meter.js: the corroded-joint scenario should not lose less voltage') }
+  { const d = R({ red: 'cab_bat', black: 'cab_inv' }).value; near(d, i * cableOhm, 0.002, 'cable drop under load'); if (R({ red: 'cab_bat', black: 'cab_inv' }, W({ scenario: 'corroded' })).value < d) bad('meter.js: the corroded-joint scenario should not lose less voltage') }
   { const w = W({ scenario: 'corroded', batW: -600 }); const jointDrop = R({ red: 'bat+', black: 'lug' }, w).value; if (!(jointDrop > 0.2)) bad(`meter.js: a corroded lug under load should drop volts across the joint, got ${jointDrop}`) }
   // current
-  { const r = R({ dial: 'amp', jack: 'a', red: 'gap1', black: 'gap2' }, W({ batW: -100, servedW: 100 })); near(r.value, -100 / ocv, 0.01, 'series current'); if (r.blown) bad('meter.js: series current on 7.5 A blew the 10 A fuse')
+  { const r = R({ dial: 'amp', jack: 'a', red: 'gap1', black: 'gap2' }, W({ batW: -100, servedW: 100 })); near(r.value, 100 / ocv, 0.01, 'series current is the load current'); if (r.blown) bad('meter.js: series current on 7.5 A blew the 10 A fuse')
     if (!R({ dial: 'amp', jack: 'a', red: 'gap1', black: 'gap2' }).blown) bad('meter.js: 15 A is above the meter fuse and must blow it') }
   { const r = R({ dial: 'amp', jack: 'a', red: 'gap1', black: 'gap2' }, W({ batW: -1500, servedW: 1500 })); if (!r.blown) bad('meter.js: 113 A through the 10 A fuse should blow it') }
   if (!R({ dial: 'amp', jack: 'a', red: 'bat+', black: 'bat-' }).blown) bad('meter.js: current mode across a battery must blow the fuse')
@@ -295,6 +295,16 @@ if (!/13\.3 to 13\.6 V/.test(text('multimeters.html')) || !/nearly flat/.test(te
     const bl = W({ isolate: true, scenario: 'blownFuse' }); if (R({ dial: 'cont', red: 'fuse_in', black: 'fuse_out' }, bl).beep || R({ dial: 'cont', red: 'fuse_in', black: 'fuse_out' }, bl).display !== 'OL') bad('meter.js: a blown fuse must read OL and stay silent')
     if (R({ dial: 'cont', red: 'cab_bat', black: 'el1' }, dead).display !== 'OL') bad('meter.js: unconnected pieces must read OL')
     if (!R({ dial: 'ohm', red: 'ac_l', black: 'ac_n' }).warn) bad('meter.js: resistance across a live outlet must be refused') }
+  // the cable carries the load's current even while the panel charges the battery (it once read 0 V all day)
+  { const sunny = { solarW: 300, solarPeakW: 350, batW: 250, soc: 0.5, servedW: 50 }, w = W(sunny), d = R({ red: 'cab_bat', black: 'cab_inv' }, w).value
+    near(d, (50 / Mt.ocv(B, 'lifepo4', 0.5, 12)) * cableOhm, 0.0005, 'cable drop while charging'); if (!(w.charging && w.iBat > 0)) bad('meter.js: should be charging in this case')
+    near(R({ dial: 'amp', jack: 'a', red: 'gap1', black: 'gap2' }, w).value, 50 / Mt.ocv(B, 'lifepo4', 0.5, 12), 0.01, 'load current while charging') }
+  // a full battery in the sun: the controller holds float, the panel sits near open circuit
+  { const w = W({ solarW: 300, solarPeakW: 350, batW: 0, soc: 1, servedW: 0, wasteW: 250 }); near(R({}, w).value, B.charge12.lifepo4.float, 1e-9, 'float voltage on a full battery'); if (!(R({ red: 'pv+', black: 'pv-' }, w).value > 20)) bad('meter.js: held-off panel should read near Voc') }
+  // 24 V and 48 V: voltages scale with the number of 12 V units
+  for (const sv of [24, 48]) { const w = W({ sysV: sv, panelDisc: true, solarW: 300, solarPeakW: 350 }); near(R({ red: 'pv+', black: 'pv-' }, w).value / (sv / 12), R({ red: 'pv+', black: 'pv-' }, W({ panelDisc: true, solarW: 300, solarPeakW: 350 })).value, 1e-9, `Voc scales to ${sv} V`); near(Mt.rint(B, 'lifepo4', 200, sv), (sv / 12) * B.rintOhmAh.lifepo4 / 200, 1e-12, `internal resistance at ${sv} V`) }
+  // a dead battery shuts the inverter down
+  if (!(W({ acOn: false }).acOn === false)) bad('meter.js: acOn false must switch the outlet off')
   // the dead-inverter scenario
   { const w = W({ scenario: 'blownFuse' }); if (R({ red: 'fuse_in', black: 'bat-' }, w).value < 12 || Math.abs(R({ red: 'fuse_out', black: 'bat-' }, w).value) > 1e-9) bad('meter.js: blown fuse: battery side should read volts and the inverter side zero'); if (R({ dial: 'acv', red: 'ac_l', black: 'ac_n' }, w).value !== 0) bad('meter.js: blown fuse: the outlet should be dead') }
   // the panel: Voc with the disconnect open or no load, Vmp while charging
@@ -317,6 +327,8 @@ if (!/13\.3 to 13\.6 V/.test(text('multimeters.html')) || !/nearly flat/.test(te
     if (title.length > 70) bad(`${f}: tab title is ${title.length} characters (limit 70)`)
     const k = guide.indexOf(f), kick = (html.match(/<p class="kicker">([^<]*)<\/p>/) || [])[1] || ''
     if (k !== -1 && kick !== `Step ${k + 1} of ${guide.length} · ${label}`) bad(`${f}: kicker "${kick}" should read "Step ${k + 1} of ${guide.length} · ${label}"`)
+    if (f === 'safety.html' && kick !== 'Before you build · Safety') bad(`safety.html: kicker "${kick}"`)
+    if (f === 'index.html' && !kick.startsWith('Simulator · ')) bad(`index.html: kicker "${kick}" should begin with the nav label`)
     if ((html.match(/<h1[\s>]/g) || []).length !== 1) bad(`${f}: needs exactly one h1`)
   }
   const titles = nav.map(([f]) => (read(f).match(/<title>([^<]*)<\/title>/) || [])[1]); if (new Set(titles).size !== titles.length) bad('two pages share a tab title')

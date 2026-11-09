@@ -1,31 +1,50 @@
-/* The virtual multimeter. The circuit picture is drawn in real pixels by meterpage.js. */
+/* The virtual multimeter: a yellow meter body (the colour of the real thing) beside a circuit drawn in real pixels by meterpage.js. */
 .vm { margin: 18px 0 8px; }
 .vm-grid { display: grid; gap: 18px; grid-template-columns: 1fr; }
-@media (min-width: 900px) { .vm-grid { grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); } }
+.vm-read { position: sticky; top: 0; z-index: 8; background: var(--bg); padding: 4px 0 2px; }
+.vm-scene { order: 3; } .vm-meter { order: 2; }
+@media (min-width: 900px) {
+  .vm-grid { grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); align-items: start; }
+  .vm-read { position: static; grid-column: 2; grid-row: 1; padding: 0; background: none; }
+  .vm-scene { grid-column: 1; grid-row: 1 / span 2; order: 0; } .vm-meter { grid-column: 2; grid-row: 2; order: 0; }
+}
 .vm-scene, .vm-meter, .vm-miss { background: var(--card); border: 4px solid var(--ink); box-shadow: 8px 8px 0 var(--accent); padding: 6px 16px 14px; }
+.vm-meter { background: var(--volt); --ink: var(--on-volt); --ink2: #33353d; --bg: #fff1b0; --card: #fff1b0; --focus: #14161b; color: var(--on-volt); border-color: var(--on-volt); }
 .vm-miss { margin-top: 22px; }
 .vm-h { font: 900 .9rem var(--display); text-transform: uppercase; letter-spacing: .06em; margin: .6em 0 .5em; }
-#vm-svg { width: 100%; height: auto; display: block; }
+.vm-h .small { text-transform: none; letter-spacing: 0; font-family: var(--mono); font-weight: 700; }
+#vm-svg { display: block; max-width: 100%; }
 #vm-svg text { font: 700 12px var(--mono); fill: var(--ink2); }
-#vm-svg .vm-cap { font-size: 12px; fill: var(--ink2); }
 #vm-svg .vm-n { fill: var(--ink); font-weight: 900; font-size: 13px; pointer-events: none; }
-#vm-svg .vm-wire { stroke: var(--ink2); stroke-width: 3; fill: none; }
-#vm-svg .vm-thick { stroke: var(--copper); stroke-width: 7; }
-#vm-svg .vm-dash { stroke-dasharray: 4 6; stroke-width: 2; }
-#vm-svg .vm-fuse { fill: var(--bg); stroke: var(--ink); stroke-width: 3; }
+#vm-svg .vm-v { fill: var(--ink); font-size: 12px; font-weight: 800; pointer-events: none; }
+#vm-svg .vm-tag { fill: var(--danger); font-weight: 900; font-size: 12px; pointer-events: none; }
+#vm-svg .vm-wire { stroke: var(--ink); stroke-width: 3; fill: none; }
+#vm-svg .vm-wire.dead { stroke: var(--ink2); stroke-dasharray: 4 6; stroke-width: 2; opacity: .75; }
+#vm-svg .vm-cable { stroke: var(--copper); stroke-width: 5; } #vm-svg .vm-cable.dead { stroke: var(--ink2); stroke-width: 2; }
+#vm-svg .vm-arrow { stroke: var(--ink); stroke-width: 3; fill: none; }
+#vm-svg .vm-fuse { fill: var(--bg); stroke: var(--ink); stroke-width: 3; } #vm-svg .vm-fuse.blown { stroke: var(--danger); stroke-dasharray: 5 3; }
+#vm-svg .vm-cross { stroke: var(--danger); stroke-width: 3; fill: none; }
+#vm-svg .vm-hit { fill: transparent; }
 #vm-svg .vm-pt { fill: var(--bg); stroke: var(--ink); stroke-width: 3; }
-#vm-svg .vm-node { cursor: pointer; }
-#vm-svg .vm-node:hover .vm-pt { stroke: var(--accent); }
+#vm-svg .off .vm-pt { stroke: var(--ink2); stroke-dasharray: 4 3; }
+#vm-svg .vm-node { cursor: pointer; outline: none; }
+#vm-svg .vm-node:hover .vm-pt, #vm-svg .vm-node:focus-visible .vm-pt { stroke: var(--accent); stroke-width: 5; }
 #vm-svg .vm-ring { fill: none; stroke-width: 4; }
-#vm-svg .vm-ring.red { stroke: var(--danger); } #vm-svg .vm-ring.blk { stroke: var(--ink); } #vm-svg .vm-ring.both { stroke: var(--volt); stroke-dasharray: 6 4; }
+#vm-svg .vm-ring.red { stroke: var(--danger); } #vm-svg .vm-ring.blk { stroke: var(--ink); stroke-dasharray: 3 3; } #vm-svg .vm-ring.both { stroke: var(--volt-text); }
+.vm-key { margin: 4px 0 8px; }
 .vm-ctl { display: grid; gap: 10px 14px; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); margin: 10px 0; }
-.vm-lcd { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; background: #cfd8c0; color: #1a2012; border: 4px solid var(--ink); padding: 10px 14px; min-height: 86px; font-family: var(--mono); }
-.vm-lcd.dead { background: #8e9786; color: #3e4535; }
+.vm-lcd { display: flex; align-items: baseline; gap: 4px 10px; flex-wrap: wrap; background: #cfd8c0; color: #1a2012; border: 4px solid var(--ink); padding: 8px 14px; min-height: 80px; font-family: var(--mono); }
+.vm-lcd.dead { background: #565c4f; color: #aeb5a4; }
 .vm-num { font: 900 clamp(2rem, 8vw, 3.2rem)/1 var(--mono); letter-spacing: .02em; min-width: 5ch; }
-.vm-unit { font: 800 1rem var(--mono); } .vm-mode { flex: 0 0 100%; font: 800 .72rem var(--mono); letter-spacing: .08em; }
+.vm-unit { font: 800 1rem var(--mono); } .vm-mode { flex: 0 0 100%; font: 800 .75rem var(--mono); letter-spacing: .08em; }
+.vm-between { flex: 0 0 100%; font: 800 .75rem var(--mono); min-height: 1em; }
 .vm-beep { margin-left: auto; font: 900 .8rem var(--mono); border: 2px solid currentColor; padding: 1px 6px; opacity: .15; } .vm-beep.on { opacity: 1; background: #1a2012; color: #cfd8c0; }
-.vm-msg { min-height: 3.6em; margin: 8px 0; font-size: .95rem; max-width: none; } .vm-msg.bad { color: var(--danger); font-weight: 700; }
+.vm-msg { min-height: 3.4em; margin: 6px 0; font-size: .92rem; max-width: none; background: var(--bg); } .vm-msg.bad { color: var(--danger); font-weight: 700; }
 .vm-dial, .vm-jacks { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0; }
+.vm-meter .chip { background: transparent; }
+.vm-meter .chip[aria-pressed="true"], .vm-meter .chip[aria-checked="true"] { background: var(--on-volt); color: var(--volt); }
 .vm-meter .field { margin: 8px 0; }
 .vm-miss ol { margin: 0; padding-left: 1.4em; } .vm-miss li { margin: 0 0 10px; } .vm-miss li b { display: block; } .vm-miss li span { color: var(--ink2); font-size: .92rem; } .vm-miss li.done b { color: var(--ok); }
-@media (max-width: 899px) { .vm-meter { order: -1; } }
+.vm-meter.shake { animation: vmshake .45s linear 1; }
+@keyframes vmshake { 10%, 90% { transform: translateX(-3px); } 20%, 80% { transform: translateX(6px); } 30%, 50%, 70% { transform: translateX(-9px); } 40%, 60% { transform: translateX(9px); } }
+@media (prefers-reduced-motion: reduce) { .vm-meter.shake { animation: none; } }

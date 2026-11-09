@@ -33,38 +33,31 @@
      in: { B (battery.json), chem, sysV, ah, soc, batW (battery bus power, + charging), servedW, solarUsedW, solarW, solarPeakW, acOn, region: {v,hz},
            panel: {voc, vmp}, cableOhm, isolate, panelDisc, scenario } */
   M.world = function (i) {
-    var B = i.B, sc = B.scene, w = { nodes: {}, live: {}, I: 0, charging: false, acV: 0, acHz: 0, acOn: false }
+    var B = i.B, sc = B.scene, w = { nodes: {}, live: {}, I: 0, iLoad: 0, charging: false, regulating: false, acV: 0, acHz: 0, acOn: false }
     var ocv = M.ocv(B, i.chem, i.soc, i.sysV), rint = M.rint(B, i.chem, i.ah, i.sysV)
-    var cut = i.isolate || i.scenario === 'blownFuse'          // the load side is dead
-    var iLoad = cut ? 0 : Math.max(0, (i.servedW) / Math.max(ocv, 1))   // DC bus current drawn from the battery side (A), before charging offsets
-    var charging = !cut && i.batW > 1, panelOn = !i.isolate && !i.panelDisc && i.scenario !== 'panelOpen' && i.solarW > 1
-    // battery terminal voltage
-    var iBat = cut ? 0 : i.batW / Math.max(ocv, 1)                // + charging, - discharging (amps at the terminals)
+    var cut = i.isolate || i.scenario === 'blownFuse'                       // the load side is dead
+    var iLoad = cut ? 0 : Math.max(0, i.servedW) / Math.max(ocv, 1)          // amps the loads draw through the fuse and the cable
+    var panelOn = !i.isolate && !i.panelDisc && i.scenario !== 'panelOpen' && i.solarW > 1
+    var iBat = i.isolate ? 0 : i.batW / Math.max(ocv, 1)                      // net current at the battery posts: + charging, - discharging
+    if (i.scenario === 'blownFuse') iBat = Math.max(0, iBat)                   // the loads are cut off; only the panel can still charge
     var cv = B.charge12[i.chem], vt
-    if (charging && panelOn) vt = (i.soc < B.absorbUntil ? cv.absorb : cv.float) * i.sysV / 12
-    else vt = ocv + iBat * rint                                    // discharging: iBat < 0 lowers the voltage
-    var I = Math.abs(iBat)
+    var charging = panelOn && iBat > 0.05, regulating = panelOn && !charging && (i.wasteW || 0) > 1   // regulating: the battery is full and the controller holds the voltage
+    if (charging || regulating) vt = (i.soc < B.absorbUntil && charging ? cv.absorb : cv.float) * i.sysV / 12
+    else vt = ocv + Math.min(0, iBat) * rint                                  // discharging lowers the terminal voltage
     var rCorr = i.scenario === 'corroded' ? sc.corrodedOhm : 0.0005
-    var vBatPost = vt
-    var vLug = vt - Math.max(0, -iBat) * rCorr + (iBat > 0 ? iBat * rCorr : 0)          // drop across the joint, in the direction of flow
-    var vFuseIn = vLug
-    var rFuse = sc.fuseOhm
-    var vFuseOut = i.scenario === 'blownFuse' ? 0 : vFuseIn - Math.max(0, -iBat) * rFuse
-    var vCabBat = vFuseOut
-    var vCabInv = i.scenario === 'blownFuse' ? 0 : vCabBat - Math.max(0, -iBat) * i.cableOhm
-    var f = i.solarPeakW > 0 ? Math.min(1, i.solarW / i.solarPeakW) : 0
-    var n = i.sysV / 12, pv = 0
-    if (i.solarW > 1 && !i.isolate) pv = (panelOn ? n * i.panel.vmp * (0.92 + 0.08 * f) : n * i.panel.voc * (0.85 + 0.15 * f))
-    if (i.panelDisc && i.solarW > 1 && !i.isolate) pv = n * i.panel.voc * (0.85 + 0.15 * f)
-    var acOn = !!i.acOn && !cut
-    w.nodes = { 'bat+': vBatPost, 'bat-': 0, lug: vLug, fuse_in: vFuseIn, fuse_out: vFuseOut, cab_bat: vCabBat, cab_inv: vCabInv, gap1: 0, gap2: 0, 'pv+': pv, 'pv-': 0, el1: 0, el2: 0 }
+    var vLug = vt - iLoad * rCorr
+    var vFuseOut = i.scenario === 'blownFuse' ? 0 : vLug - iLoad * sc.fuseOhm
+    var vCabInv = i.scenario === 'blownFuse' ? 0 : vFuseOut - iLoad * i.cableOhm
+    var f = i.solarPeakW > 0 ? Math.min(1, i.solarW / i.solarPeakW) : 0, n = i.sysV / 12, pv = 0
+    if (i.solarW > 1 && !i.isolate) pv = (charging ? n * i.panel.vmp * (0.92 + 0.08 * f) : n * i.panel.voc * (0.85 + 0.15 * f))   // disconnected, or held off by the controller: near open circuit
+    var acOn = i.acOn !== false && !cut
+    w.nodes = { 'bat+': vt, 'bat-': 0, lug: vLug, fuse_in: vLug, fuse_out: vFuseOut, cab_bat: vFuseOut, cab_inv: vCabInv, gap1: 0, gap2: 0, 'pv+': pv, 'pv-': 0, el1: 0, el2: 0 }
     w.ac = { ac_l: acOn ? i.region.v : 0, ac_n: 0 }; w.acV = acOn ? i.region.v : 0; w.acHz = i.region.hz; w.acOn = acOn
-    w.I = I; w.iBat = iBat; w.charging = charging && panelOn
-    w.cableOhm = i.cableOhm; w.rFuse = rFuse; w.fuseBlown = i.scenario === 'blownFuse'
+    w.I = iLoad; w.iLoad = iLoad; w.iBat = iBat; w.charging = charging; w.regulating = regulating
+    w.cableOhm = i.cableOhm; w.rFuse = sc.fuseOhm; w.fuseBlown = i.scenario === 'blownFuse'
     w.elementOhm = sc.elementOhm; w.linkOhm = sc.linkOhm
     w.live = { 'bat+': 1, 'bat-': 1, lug: 1, fuse_in: 1, fuse_out: !cut, cab_bat: !cut, cab_inv: !cut, gap1: !cut, gap2: !cut, 'pv+': pv > 0, 'pv-': pv > 0, ac_l: acOn, ac_n: acOn, el1: 0, el2: 0 }
-    w.isolate = !!i.isolate
-    w.cut = cut
+    w.isolate = !!i.isolate; w.cut = cut
     return w
   }
 
@@ -94,7 +87,7 @@
      returns { display, unit, mode, beep, blown, warn, note, value } */
   M.read = function (s, B, w) {
     var m = B.meter, out = { display: '', unit: '', mode: s.dial, beep: false, blown: false, warn: '', note: '', value: null }
-    if (s.dial === 'off') { out.display = ''; out.note = 'The meter is off.'; return out }
+    if (s.dial === 'off') { out.display = ''; out.note = (s.red || s.black) ? 'The probes are placed, but the meter is off. Turn the dial to a setting.' : 'The meter is off. Turn the dial to a setting.'; return out }
     if (!s.red || !s.black) { out.display = '---'; out.note = 'Put both probes on the circuit.'; return out }
     var pa = pot(w, s.red), pb = pot(w, s.black), dv = pa - pb
     // red lead in the 10 A socket while measuring anything but current: the socket is a near-short through a 10 A fuse
@@ -104,7 +97,10 @@
     }
     if (s.dial === 'dcv') {
       if (isAc(s.red) || isAc(s.black)) { out.display = '0.000'; out.unit = 'V'; out.note = 'DC volts ignores an AC supply.'; return out }
-      out.value = dv; out.display = fmtV(dv); out.unit = 'V DC'; return out
+      out.value = dv; out.display = fmtV(dv); out.unit = 'V DC'
+      if (dv < -0.05) out.note = 'Minus sign: the red probe is on the lower-voltage point. The probes are reversed.'
+      if ((s.red === 'bat+' && s.black === 'bat-') && (w.charging || w.regulating)) out.note = 'While a panel charges the battery, the charge controller sets this voltage (' + (w.regulating ? 'float: the battery is full' : 'absorption') + '). It is not the battery\'s resting voltage.'
+      return out
     }
     if (s.dial === 'acv') {
       var da = Math.abs((isAc(s.red) ? w.ac[s.red] : 0) - (isAc(s.black) ? w.ac[s.black] : 0))
@@ -126,9 +122,9 @@
       var series = (s.red === 'gap1' && s.black === 'gap2') || (s.red === 'gap2' && s.black === 'gap1')
       if (series) {
         if (s.jack !== 'a') { out.display = '0.00'; out.unit = 'A'; out.note = 'The red lead is in the V ohm socket: it has almost no current path, so the circuit is now open and the load side has lost power.'; out.opened = true; return out }
-        if (w.I > m.fuseA) { out.blown = true; out.display = '0.00'; out.unit = 'A'; out.warn = 'The current is ' + w.I.toFixed(1) + ' A and the meter\'s fuse is ' + m.fuseA + ' A: it blew. Use a clamp meter for currents above the meter\'s rating.'; return out }
-        var cur = w.iBat; out.value = cur; out.display = (cur < 0 ? '-' : '') + Math.abs(cur).toFixed(Math.abs(cur) >= 10 ? 2 : 3); out.unit = 'A DC'
-        out.note = cur < 0 ? 'Negative: the battery is supplying current.' : cur > 0 ? 'Positive: the battery is charging.' : ''
+        if (w.iLoad > m.fuseA) { out.blown = true; out.display = '0.00'; out.unit = 'A'; out.warn = 'The current is ' + w.iLoad.toFixed(1) + ' A and the meter\'s fuse is ' + m.fuseA + ' A: it blew. Use a clamp meter for currents above the meter\'s rating.'; return out }
+        var cur = w.iLoad; out.value = cur; out.display = cur.toFixed(cur >= 10 ? 2 : 3); out.unit = 'A DC'
+        out.note = 'This is the current the loads draw, in the lead that returns it to the battery' + (w.charging ? '. The panel is charging the battery at the same time, so the battery\'s own net current is different.' : '.')
         return out
       }
       // current mode across anything else: the meter is a 0.01 ohm shunt across the voltage difference

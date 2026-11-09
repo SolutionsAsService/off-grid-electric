@@ -38,11 +38,13 @@
     var main = byId('main'), h1 = main && main.querySelector('h1'); if (!main || !h1) return
     var k = -1; PATH.forEach(function (p, i) { if (p[0] === CUR) k = i })
     var kick = main.querySelector('.kicker')
+    if (CUR === 'safety.html' && kick) kick.textContent = 'Before you build · Safety'
+    if (CUR === 'index.html' && kick) kick.textContent = 'Simulator · off-grid power, computed instead of promised'
     if (k !== -1 && kick) kick.textContent = 'Step ' + (k + 1) + ' of ' + PATH.length + ' · ' + PATH[k][1]
     var hs = Array.prototype.slice.call(main.querySelectorAll('h2')).filter(function (h) { return !h.closest('.calc, .vm') })
     if (k !== -1 && hs.length >= 4) {
       var used = {}, items = hs.map(function (h) { var id = h.id || h.textContent.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''); while (used[id] || (document.getElementById(id) && document.getElementById(id) !== h)) id += '-x'; used[id] = 1; h.id = id; return '<li><a href="#' + id + '">' + esc(h.textContent) + '</a></li>' })
-      var nav = document.createElement('nav'); nav.className = 'toc'; nav.setAttribute('aria-label', 'On this page'); nav.innerHTML = '<b>On this page</b><ol>' + items.join('') + '</ol>'
+      var nav = document.createElement('details'); nav.className = 'toc'; nav.open = window.innerWidth >= 720; nav.innerHTML = '<summary>On this page (' + items.length + ')</summary><nav aria-label="On this page"><ol>' + items.join('') + '</ol></nav>'
       var after = main.querySelector('.lede') || h1; after.parentNode.insertBefore(nav, after.nextSibling)
     }
     if (k !== -1) {
