@@ -19,7 +19,7 @@ OG.boot(function (G) {
     function ctxFor(c) { if (!c) return free; if (!caseCtx[c.id]) { var y = CF.system; caseCtx[c.id] = mkSim(y.chem, y.sysV, y.ah, y.panelW, y.psh, c.loads.map(function (id) { return { w: byApp[id].w, ac: byApp[id].ac, from: byApp[id].from, to: byApp[id].to } })) } return caseCtx[c.id] }
     var sim = free.sim
     var awg = G.awg.filter(function (r) { return r.awg === B.scene.cableAwg })[0], cableOhm = awg.ohmsPerKft / 304.8 * B.scene.cableMetres
-    var st = { mode: 'free', caseId: 0, notes: [], tries: 0, solved: false, dial: 'off', jack: 'v', red: '', black: '', lead: 'red', rel: false, blown: false, blowMsg: '', t: 12, scenario: 'normal', isolate: false, panelDisc: false, region: 'us', done: {} }
+    var st = { notes: [], cs: {}, dx: '', mode: 'free', caseId: 0, notes: [], tries: 0, solved: false, dial: 'off', jack: 'v', red: '', black: '', lead: 'red', rel: false, blown: false, blowMsg: '', t: 12, scenario: 'normal', isolate: false, panelDisc: false, region: 'us', done: {} }
     var MISSIONS = [
       { id: 'dc', t: 'Read the battery voltage.', h: 'DC volts, red on the battery positive post, black on the negative.', ok: function (s, r) { return s.dial === 'dcv' && s.jack === 'v' && s.red === 'bat+' && s.black === 'bat-' && !r.blown } },
       { id: 'rev', t: 'Reverse the probes and see the minus sign.', h: 'Same dial, red on the negative post, black on the positive.', ok: function (s, r) { return s.dial === 'dcv' && s.red === 'bat-' && s.black === 'bat+' && r.value < -1 } },
@@ -57,7 +57,7 @@ OG.boot(function (G) {
       '<div class="field"><label for="vm-blk">Black probe</label><select id="vm-blk">' + opts('') + '</select></div>' +
       '<div class="chips"><button type="button" class="chip" id="vm-rel" aria-pressed="false">REL (zero the leads)</button><button type="button" class="chip" id="vm-snd" aria-pressed="true">Sound: on</button><button type="button" class="chip" id="vm-fuse" hidden>Replace the meter\'s fuse</button></div><p class="small" id="vm-blownct"></p></div>' +
       '<div class="vm-scene"><h3 class="vm-h">The circuit <span class="small" id="vm-next"></span></h3><svg id="vm-svg" role="group" aria-label="Fifteen numbered test points on a cabin power circuit. Each can be chosen with the probe lists above, or here with Tab and Enter."><title>A cabin power circuit with fifteen numbered test points, each showing the voltage a meter would read to the battery negative post</title></svg><p class="small" id="vm-status"></p>' +
-      '<p class="small vm-key">Figures under the points: volts to the battery negative post. Dashed grey: no power. Solid: live. Ring R on a point: red probe. Ring B: black probe.</p>' +
+      '<p class="small vm-key" id="vm-key">Figures under the points: volts to the battery negative post. Dashed grey: no power. Solid: live. Ring R on a point: red probe. Ring B: black probe.</p>' +
       '<div class="vm-ctl"><div class="field" id="vm-scf"><label for="vm-sc">What is wrong?</label><select id="vm-sc">' + Object.keys(Mt.SCENARIOS).map(function (k) { return '<option value="' + k + '">' + esc(Mt.SCENARIOS[k]) + '</option>' }).join('') + '</select></div>' +
       '<div class="field"><label for="vm-t">Time of day <output id="vm-to">12:00</output></label><input id="vm-t" type="range" min="0" max="23.75" step="0.25" value="12"></div>' +
       '<div class="field"><label for="vm-rg">Mains supply</label><select id="vm-rg"><option value="us">120 V, 60 Hz</option><option value="eu">230 V, 50 Hz</option></select></div></div>' +
@@ -73,14 +73,14 @@ OG.boot(function (G) {
       try { var A = window.AudioContext || window.webkitAudioContext; if (!A) return; ac = ac || new A(); var o = ac.createOscillator(), g = ac.createGain(); o.type = type || 'sine'; o.frequency.value = freq; g.gain.value = vol || 0.05; o.connect(g); g.connect(ac.destination); o.start(); o.stop(ac.currentTime + ms / 1000) } catch (e) { /* no audio: the picture and words still say it */ }
     }
     // ---- the diagram
-    var svg = $('vm-svg'), W = 0, nodeEls = {}, wireEls = {}, arrow, fuseX, jack = {}, leads = {}, tips = {}, drag = null
+    var svg = $('vm-svg'), W = 0, nodeEls = {}, wireEls = {}, arrow, fuseX, jack = {}, leads = {}, tips = {}, drag = null, jacks = {}
     function layout() {
       var box = root.querySelector('.vm-scene'), cs = getComputedStyle(box), pad = parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight) + parseFloat(cs.borderLeftWidth) + parseFloat(cs.borderRightWidth)
       var nw = Math.max(240, Math.floor(box.clientWidth - pad + parseFloat(cs.borderLeftWidth) + parseFloat(cs.borderRightWidth)) - 0); nw = Math.max(240, Math.floor(box.getBoundingClientRect().width - pad)); if (nw === W && nodeEls['bat+']) return; W = nw
       var m = 22, dx = (W - 2 * m) / 5, H = 318; svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H); svg.setAttribute('width', W); svg.setAttribute('height', H)
       while (svg.childNodes.length > 1) svg.removeChild(svg.lastChild)
       function X(c) { return m + dx * c } function Y(r) { return [28, 102, 176][r] }
-      var wires = el(svg, 'g'), caps = el(svg, 'g'), pts = el(svg, 'g'); wireEls = {}; nodeEls = {}
+      var leadsG = el(svg, 'g'), wires = el(svg, 'g'), caps = el(svg, 'g'), pts = el(svg, 'g'); wireEls = {}; nodeEls = {}
       function line(a, b, cls) { var e = el(wires, 'path', { class: cls || 'vm-wire', d: 'M' + X(COL[a][0]) + ' ' + Y(COL[a][1]) + 'L' + X(COL[b][0]) + ' ' + Y(COL[b][1]) }); wireEls[a + '|' + b] = e }
       line('bat+', 'lug'); line('lug', 'fuse_in'); line('fuse_out', 'cab_bat'); line('cab_bat', 'cab_inv', 'vm-wire vm-cable'); line('bat-', 'gap1'); line('pv+', 'pv-'); line('el1', 'el2'); line('ac_l', 'ac_n'); line('gap2', 'ac_l')
       line('fuse_in', 'fuse_out'); fuseX = X(2.5)
@@ -98,11 +98,11 @@ OG.boot(function (G) {
         nodeEls[n.id] = { g: g, ring: ring, tag: tag, v: v, x: X(c[0]), y: Y(c[1]) }
       })
       // the meter body, its jacks, and two leads ending in draggable probe tips (drawn last so they sit above the points)
-      var cx = W / 2; jack = { red: [cx + 38, 268], black: [cx - 38, 268] }
-      el(caps, 'rect', { class: 'vm-body', x: cx - 70, y: 246, width: 140, height: 24 }); el(caps, 'text', { x: cx, y: 263, 'text-anchor': 'middle', class: 'vm-bodyt' }, 'METER')
+      var cx = W / 2; jacks = { com: [cx - 50, 268], v: [cx + 10, 268], a: [cx + 50, 268] }; jack = { red: jacks[st.jack], black: jacks.com }
+      el(caps, 'rect', { class: 'vm-body', x: cx - 78, y: 240, width: 156, height: 30 }); el(caps, 'text', { x: cx - 50, y: 258, 'text-anchor': 'middle', class: 'vm-bodyt' }, 'COM'); el(caps, 'text', { x: cx + 10, y: 258, 'text-anchor': 'middle', class: 'vm-bodyt' }, 'VΩ'); el(caps, 'text', { x: cx + 50, y: 258, 'text-anchor': 'middle', class: 'vm-bodyt' }, '10A')
+      ;['com', 'v', 'a'].forEach(function (k) { el(caps, 'circle', { cx: jacks[k][0], cy: jacks[k][1], r: 5, class: 'vm-jackdot ' + (k === 'com' ? 'black' : 'red') }) })
       ;['black', 'red'].forEach(function (k) {
-        el(caps, 'circle', { cx: jack[k][0], cy: jack[k][1], r: 5, class: 'vm-jackdot ' + k })
-        leads[k] = el(svg, 'path', { class: 'vm-lead ' + k, d: '' })
+        leads[k] = el(leadsG, 'path', { class: 'vm-lead ' + k, d: '' })
       })
       ;['black', 'red'].forEach(function (k) {
         var g = el(svg, 'g', { class: 'vm-tip ' + k }); el(g, 'circle', { class: 'vm-tiphit', r: 26 }); el(g, 'circle', { class: 'vm-tipdot', r: 11 }); el(g, 'text', { class: 'vm-tipt', 'text-anchor': 'middle', y: 4 }, k === 'red' ? 'R' : 'B')
@@ -112,33 +112,42 @@ OG.boot(function (G) {
     }
     function wireTip(k) {
       var t = tips[k].g
+      t.setAttribute('tabindex', '0'); t.setAttribute('role', 'button')
+      t.addEventListener('keydown', function (e) {
+        var keys = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 }
+        if (e.key === 'Escape' || e.key === 'Delete' || e.key === 'Backspace') { e.preventDefault(); st[k] = ''; $(k === 'red' ? 'vm-red' : 'vm-blk').value = ''; say((k === 'red' ? 'Red' : 'Black') + ' probe lifted off the circuit.'); update(); return }
+        if (!(e.key in keys)) return; e.preventDefault()
+        var at = ORDER.map(function (n) { return n.id }).indexOf(st[k]), nx = ORDER[(at === -1 ? (keys[e.key] > 0 ? 0 : ORDER.length - 1) : (at + keys[e.key] + ORDER.length) % ORDER.length)].id
+        st[k] = nx; $(k === 'red' ? 'vm-red' : 'vm-blk').value = nx; say((k === 'red' ? 'Red' : 'Black') + ' probe on point ' + BYID[nx].num + ', ' + BYID[nx].label + '.'); update(); tips[k].g.focus()
+      })
       t.addEventListener('pointerdown', function (e) { e.preventDefault(); drag = { k: k }; try { t.setPointerCapture(e.pointerId) } catch (x) { /* older browsers: the move events still reach the tip */ } t.classList.add('drag') })
       t.addEventListener('pointermove', function (e) { if (!drag || drag.k !== k) return; var r = svg.getBoundingClientRect(); placeTip(k, e.clientX - r.left, e.clientY - r.top) })
       function end(e) {
         if (!drag || drag.k !== k) return; drag = null; t.classList.remove('drag')
         var r = svg.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top, best = '', bd = 34
         Object.keys(nodeEls).forEach(function (id) { var d = Math.hypot(nodeEls[id].x - x, nodeEls[id].y - y); if (d < bd) { bd = d; best = id } })
-        st[k] = best; $(k === 'red' ? 'vm-red' : 'vm-blk').value = best
+        st[k] = best; $(k === 'red' ? 'vm-red' : 'vm-blk').value = best; if (best) { tone(1300, 35, 'square', 0.03); var lc = $('vm-lcd'); lc.classList.remove('flash'); void lc.offsetWidth; lc.classList.add('flash') }
         say(best ? (k === 'red' ? 'Red' : 'Black') + ' probe on point ' + BYID[best].num + ', ' + BYID[best].label + '.' : (k === 'red' ? 'Red' : 'Black') + ' probe lifted off the circuit.'); update()
       }
       t.addEventListener('pointerup', end); t.addEventListener('pointercancel', end)
     }
     function placeTip(k, x, y) {
       tips[k].x = x; tips[k].y = y; tips[k].g.setAttribute('transform', 'translate(' + x + ' ' + y + ')')
-      var j = jack[k]; leads[k].setAttribute('d', 'M' + j[0] + ' ' + j[1] + 'C' + j[0] + ' ' + (j[1] + 46) + ' ' + x + ' ' + (y + 54) + ' ' + x + ' ' + y)
+      var j = jack[k]; leads[k].setAttribute('d', 'M' + j[0] + ' ' + j[1] + 'Q' + j[0] + ' ' + Math.max(j[1], y) + ' ' + x + ' ' + y)
     }
     function seatTips() {
-      ['black', 'red'].forEach(function (k) {
+      ['black', 'red'].forEach(function (k) { var id = st[k]; tips[k].g.setAttribute('aria-label', (k === 'red' ? 'Red' : 'Black') + ' probe, ' + (id ? 'on point ' + BYID[id].num + ', ' + BYID[id].label : 'not touching anything') + '. Arrow keys move it to the next point; Escape lifts it.') })
+      ;['black', 'red'].forEach(function (k) {
         if (drag && drag.k === k) return
-        var id = st[k], j = jack[k], same = st.red && st.red === st.black
-        if (id && nodeEls[id]) placeTip(k, nodeEls[id].x + (k === 'red' ? 9 : -9) * (same ? 1 : 0.6), nodeEls[id].y + 13); else placeTip(k, j[0] + (k === 'red' ? 22 : -22), 298)
+        jack.red = jacks[st.jack]; var id = st[k], j = jack[k], same = st.red && st.red === st.black
+        if (id && nodeEls[id]) placeTip(k, nodeEls[id].x + (k === 'red' ? 17 : -17), nodeEls[id].y + 17); else placeTip(k, j[0] + (k === 'red' ? 18 : -18), 300)
       })
     }
     var fuseBox, fuseCross
     function volts(w, id) { var v = BYID[id] && (id === 'ac_l' || id === 'ac_n') ? w.ac[id] : w.nodes[id]; if (id === 'el1' || id === 'el2') return ''; var a = Math.abs(v); return (id === 'ac_l' && v ? Math.round(v) + '~' : a < 0.0005 ? '0' : (v < 0 ? '-' : '') + (a >= 10 ? a.toFixed(2) : a.toFixed(3))) }
     function paint() {
       var w = world(); if (!nodeEls['bat+']) return
-      var LAB = st.mode === 'case'
+      var LAB = st.mode === 'case' && !st.solved
       Object.keys(nodeEls).forEach(function (id) {
         var n = nodeEls[id], r = st.red === id, b = st.black === id
         n.ring.setAttribute('visibility', r || b ? 'visible' : 'hidden'); n.ring.setAttribute('class', 'vm-ring ' + (r && b ? 'both' : r ? 'red' : 'blk'))
@@ -182,9 +191,9 @@ OG.boot(function (G) {
       var cx = ctxFor(curCase()), sim = cx.sim, i = idx(); $('vm-status').textContent = LABM ? G.clock(st.t) + ': the sun is ' + (sim.solar[i] > 1 ? 'up' : 'down') + '. Work out what is wrong from the meter.' : G.clock(st.t) + ': sun ' + G.fmt(sim.solar[i]) + ' W, loads ' + G.fmt(sim.served[i]) + ' W, battery ' + Math.round(sim.soc[i] * 100) + '%' + (w.isolate ? ', circuit isolated' : w.iBat > 0.05 ? ', charging at ' + w.iBat.toFixed(1) + ' A' : w.iBat < -0.05 ? ', supplying ' + Math.abs(w.iBat).toFixed(1) + ' A' : ', no net battery current') + (w.acOn ? '' : ', inverter off')
       if (!LABM) MISSIONS.forEach(function (m) { if (!st.done[m.id] && m.ok(setup, r)) st.done[m.id] = 1 })
       st.last = r
-      $('vm-miss').hidden = LABM; $('vm-case').hidden = !LABM; $('vm-scf').hidden = LABM
+      $('vm-key').textContent = LABM && !st.solved ? 'Case file: the figures under the points and the live-or-dead styling are withheld on purpose. The meter is your only evidence.' : 'Figures under the points: volts to the battery negative post. Dashed grey: no power. Solid: live. Tip R: red probe. Tip B: black probe.'; $('vm-miss').hidden = LABM; $('vm-case').hidden = !LABM; $('vm-scf').hidden = LABM
       document.querySelectorAll('[data-mode]').forEach(function (b) { b.setAttribute('aria-pressed', String(b.getAttribute('data-mode') === st.mode)) })
-      $('vm-rec').disabled = !r.display || !!r.dead; paintNotes(); if (LABM) { var ck = [st.caseId, st.solved, st.tries, st.hint, st.result].join('|'); if (ck !== st.ck) { st.ck = ck; paintCase() } }
+      $('vm-rec').disabled = !r.display || !!r.dead || st.dial === 'off' || !st.red || !st.black; paintNotes(); if (LABM) { var ck = [st.caseId, st.solved, st.tries, st.hint, st.result].join('|'); if (ck !== st.ck) { st.ck = ck; paintCase() } }
       var n = MISSIONS.filter(function (m) { return st.done[m.id] }).length
       $('vm-list').innerHTML = MISSIONS.map(function (m) { return '<li class="' + (st.done[m.id] ? 'done' : '') + '"><b>' + (st.done[m.id] ? 'Done · ' : '') + esc(m.t) + '</b><span>' + esc(m.h) + '</span></li>' }).join(''); $('vm-count').textContent = '(' + n + ' of ' + MISSIONS.length + ')'
       paint()
@@ -197,32 +206,41 @@ OG.boot(function (G) {
       $('vm-ncount').textContent = st.notes.length ? '(' + st.notes.length + ')' : ''
     }
     function recordReading() {
-      var r = st.last; if (!r || !r.display || r.dead) return
-      st.notes.push({ mode: DL[st.dial] + (st.jack === 'a' && st.dial === 'amp' ? ' (10 A socket)' : ''), pts: st.red && st.black ? 'points ' + BYID[st.red].num + ' to ' + BYID[st.black].num : 'no points', val: r.display + ' ' + r.unit.trim() })
+      var r = st.last; if (!r || !r.display || r.dead || st.dial === 'off' || !st.red || !st.black) return
+      st.notes.push({ mode: DL[st.dial] + (st.jack === 'a' && st.dial === 'amp' ? ' (10 A socket)' : ''), pts: BYID[st.red].num + ' ' + BYID[st.red].label + ' to ' + BYID[st.black].num + ' ' + BYID[st.black].label, val: r.display + ' ' + r.unit.trim() })
       if (st.notes.length > 30) st.notes.shift()
       say('Recorded: ' + st.notes[st.notes.length - 1].val); update()
     }
+    function ctxKey() { return st.mode === 'free' ? 'free' : st.caseId ? 'c' + st.caseId : 'list' }
+    function saveCtx() { st.cs[ctxKey()] = { t: st.t, notes: st.notes, tries: st.tries, solved: st.solved, hint: st.hint, result: st.result, dx: st.dx } }
+    function loadCtx() { var o = st.cs[ctxKey()] || { notes: [], tries: 0, solved: false, hint: 0, result: '', dx: '' }; st.notes = o.notes; st.tries = o.tries; st.solved = o.solved; st.hint = o.hint; st.result = o.result; st.dx = o.dx }
     function startCase(id) {
-      st.caseId = id; var c = curCase(); st.t = c.t; $('vm-t').value = c.t; $('vm-to').textContent = G.clock(c.t)
-      st.isolate = false; st.panelDisc = false; st.red = ''; st.black = ''; st.dial = 'off'; st.jack = 'v'; st.notes = []; st.tries = 0; st.solved = false; st.hint = 0; st.result = ''
+      st.caseId = id; var c = curCase(); if (!st.cs['c' + id]) st.t = c.t; else st.t = st.cs['c' + id].t || c.t; $('vm-t').value = c.t; $('vm-to').textContent = G.clock(c.t)
+      st.isolate = false; st.panelDisc = false; st.red = ''; st.black = ''; st.dial = 'off'; st.jack = 'v'; loadCtx()
       $('vm-red').value = ''; $('vm-blk').value = ''
     }
     function paintCase() {
+      var ae = document.activeElement, fid = ae && ae.id && ae.closest && ae.closest('#vm-case') ? ae.id : '', fcase = ae && ae.getAttribute && ae.getAttribute('data-case')
+      drawCase()
+      var t = fid ? $(fid) : fcase ? document.querySelector('#vm-case [data-case="' + fcase + '"]') : null; if (t && !t.disabled && t.focus) t.focus()
+    }
+    function drawCase() {
       var c = curCase(), box = $('vm-case')
       if (!c) { box.innerHTML = '<h3 class="vm-h">Case files</h3><p>You are the electrician. Each case is a cabin with a fault you cannot see. Take readings with the meter, then name the fault. The circuit hides its state here; only the meter tells you.</p><div class="chips">' + CF.cases.map(function (x) { return '<button type="button" class="chip" data-case="' + x.id + '">Case ' + x.id + ': ' + esc(x.title) + '</button>' }).join('') + '</div>'; return }
       var done = st.solved
       box.innerHTML = '<h3 class="vm-h">Case ' + c.id + ' of ' + CF.cases.length + ': ' + esc(c.title) + '</h3><p>' + esc(c.symptom) + '</p>' +
-        '<div class="vm-dx"><div class="field"><label for="vm-dxs">Your diagnosis</label><select id="vm-dxs"' + (done ? ' disabled' : '') + '><option value="">Choose a fault...</option>' + CF.diagnoses.map(function (d) { return '<option value="' + d.id + '">' + esc(d.label) + '</option>' }).join('') + '</select></div>' +
-        '<div class="chips"><button type="button" class="chip" id="vm-dxgo"' + (done ? ' disabled' : '') + '>Submit diagnosis</button><button type="button" class="chip" id="vm-hint"' + (done ? ' disabled' : '') + '>Hint (' + (st.hint || 0) + ' of ' + c.evidence.length + ')</button><button type="button" class="chip" data-case="0">Back to the case list</button>' + (done && c.id < CF.cases.length ? '<button type="button" class="chip" data-case="' + (c.id + 1) + '">Next case</button>' : '') + '</div></div>' +
+        '<div class="vm-dx"><div class="field"><label for="vm-dxs">Your diagnosis</label><select id="vm-dxs"' + (done ? ' disabled' : '') + '><option value="">Choose a fault...</option>' + CF.diagnoses.slice().sort(function (a, b) { return a.label < b.label ? -1 : 1 }).map(function (d) { return '<option value="' + d.id + '"' + (st.dx === d.id ? ' selected' : '') + '>' + esc(d.label) + '</option>' }).join('') + '</select></div>' +
+        '<div class="chips"><button type="button" class="chip" id="vm-dxgo"' + (done ? ' disabled' : '') + '>Submit diagnosis</button><button type="button" class="chip" id="vm-hint"' + (done || (st.hint || 0) >= c.evidence.length ? ' disabled' : '') + '>' + ((st.hint || 0) >= c.evidence.length ? 'All hints shown' : 'Hint (' + (st.hint || 0) + ' of ' + c.evidence.length + ' shown)') + '</button><button type="button" class="chip" data-case="0">Back to the case list</button>' + (done && c.id < CF.cases.length ? '<button type="button" class="chip" data-case="' + (c.id + 1) + '">Next case</button>' : '') + '</div></div>' +
         '<p class="vm-res' + (done ? ' ok' : st.tries ? ' bad' : '') + '" id="vm-res" role="status">' + esc(st.result || '') + '</p>' +
         (st.hint ? '<ul class="vm-hints">' + c.evidence.slice(0, st.hint).map(function (e) { return '<li>Try: ' + esc(e.what) + '.</li>' }).join('') + '</ul>' : '')
     }
     function submitDx() {
-      var c = curCase(), v = $('vm-dxs').value; if (!c || !v) { st.result = 'Choose a fault first.'; paintCase(); return }
+      var c = curCase(), v = $('vm-dxs').value; st.dx = v; if (!c || !v) { st.result = 'Choose a fault first.'; paintCase(); return }
       st.tries++
       if (v === c.diag) { st.solved = true; var d = CF.diagnoses.filter(function (x) { return x.id === v })[0]; st.result = (st.notes.length ? 'Correct. ' : 'Correct, but you recorded no readings: a guess is not a diagnosis. ') + d.why + ' You recorded ' + st.notes.length + ' reading' + (st.notes.length === 1 ? '' : 's') + (st.tries > 1 ? ' and needed ' + st.tries + ' tries.' : ' and got it first time.') }
       else st.result = 'Not that one. Check the readings against what that fault would have to produce. ' + (c.evidence.length - (st.hint || 0) > 0 ? 'A hint is available.' : '')
-      say(st.result); paintCase()
+      st.dx = v; st.ck = ''; paintCase(); var rs = $('vm-res'); if (rs) { rs.setAttribute('tabindex', '-1'); rs.focus() }
+      if (st.solved) { tone(660, 90, 'sine', 0.06); setTimeout(function () { tone(990, 160, 'sine', 0.06) }, 110); update() } else tone(160, 220, 'sawtooth', 0.05)
     }
     function roving(group) {
       group.addEventListener('keydown', function (e) {
@@ -235,12 +253,12 @@ OG.boot(function (G) {
     root.addEventListener('click', function (e) {
       var b = e.target.closest('button'); if (!b) return
       st.ck = ''
-      if (b.hasAttribute('data-mode')) { st.mode = b.getAttribute('data-mode'); if (st.mode === 'case') { st.caseId = 0 } else { st.t = +$('vm-t').value } st.red = ''; st.black = ''; $('vm-red').value = ''; $('vm-blk').value = ''; if (st.mode === 'free') { st.dial = 'off'; st.isolate = false; st.panelDisc = false } }
-      else if (b.hasAttribute('data-case')) { var id = +b.getAttribute('data-case'); if (id) startCase(id); else { st.caseId = 0 } }
+      if (b.hasAttribute('data-mode')) { saveCtx(); st.mode = b.getAttribute('data-mode'); st.caseId = st.mode === 'case' ? (st.lastCase || 0) : 0; if (st.mode === 'free') { st.t = +$('vm-t').value } loadCtx(); if (st.mode === 'case' && st.caseId) { $('vm-t').value = st.t } st.red = ''; st.black = ''; $('vm-red').value = ''; $('vm-blk').value = ''; if (st.mode === 'free') { st.dial = 'off'; st.isolate = false; st.panelDisc = false } }
+      else if (b.hasAttribute('data-case')) { saveCtx(); var id = +b.getAttribute('data-case'); if (id) { st.lastCase = id; startCase(id) } else { st.lastCase = 0; st.caseId = 0; loadCtx() } }
       else if (b.id === 'vm-dxgo') { submitDx(); return }
       else if (b.id === 'vm-hint') { var cc = curCase(); if (cc && (st.hint || 0) < cc.evidence.length) st.hint = (st.hint || 0) + 1; paintCase(); return }
       else if (b.id === 'vm-rec') { recordReading(); return }
-      else if (b.id === 'vm-nclr') { st.notes = [] }
+      else if (b.id === 'vm-nclr') { st.notes.length = 0 }
       else if (b.hasAttribute('data-dial')) { st.dial = b.getAttribute('data-dial') }
       else if (b.hasAttribute('data-jack')) { st.jack = b.getAttribute('data-jack') }
       else if (b.id === 'vm-rel') st.rel = !st.rel
@@ -255,6 +273,7 @@ OG.boot(function (G) {
     $('vm-sc').addEventListener('change', function () { st.scenario = this.value; update() })
     $('vm-rg').addEventListener('change', function () { st.region = this.value; update() })
     $('vm-t').addEventListener('input', function () { st.t = +this.value; $('vm-to').textContent = G.clock(st.t); update() })
+    root.addEventListener('change', function (e) { if (e.target.id === 'vm-dxs') st.dx = e.target.value })
     window.addEventListener('resize', layout)
     layout(); update()
     window.__vm = { st: st, update: update, world: world, MISSIONS: MISSIONS }

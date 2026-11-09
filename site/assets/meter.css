@@ -66,3 +66,14 @@
 #vm-svg .vm-tipt { fill: var(--bg); font-weight: 900; font-size: 12px; pointer-events: none; }
 #vm-svg .vm-tip:focus-visible .vm-tipdot { stroke: var(--accent); }
 .vm.lab .vm-key { display: none; }
+#vm-svg .vm-lead { opacity: .8; } #vm-svg .vm-lead.black { stroke-dasharray: 9 5; stroke-width: 3.5; }
+.vm-lcd.flash { animation: vmflash .35s ease-out 1; } @keyframes vmflash { 0% { box-shadow: 0 0 0 6px var(--accent); } 100% { box-shadow: 0 0 0 0 transparent; } }
+@media (prefers-reduced-motion: reduce) { .vm-lcd.flash { animation: none; } }
+.vm-res:focus { outline: 3px solid var(--focus); outline-offset: 3px; }
+#vm-svg { touch-action: none; }
+.vm-tip:focus-visible .vm-tipdot { stroke: var(--accent); stroke-width: 5; } .vm-tip { outline: none; }
+@media (max-width: 899px) {
+  .vm-read { display: contents; }
+  .vm-lcd { position: sticky; top: 0; z-index: 8; min-height: 0; padding: 4px 12px; gap: 0 8px; }
+  .vm-lcd .vm-mode { display: none; } .vm-lcd .vm-num { font-size: 1.9rem; } .vm-lcd .vm-between { flex: 1 1 auto; font-size: .7rem; }
+}

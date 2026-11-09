@@ -321,7 +321,7 @@ if (!/13\.3 to 13\.6 V/.test(text('multimeters.html')) || !/nearly flat/.test(te
   { const CF = JSON.parse(read('data/cases.json')), ids = new Set(CF.diagnoses.map((d) => d.id)), sys = CF.system, byId = Object.fromEntries(apps.map((a) => [a.id, a]))
     const seen = new Set()
     for (const c of CF.cases) {
-      if (!ids.has(c.diag)) bad(`cases.json: case ${c.id} names an unknown diagnosis`); if (seen.has(c.diag)) bad(`cases.json: two cases share the diagnosis ${c.diag}`); seen.add(c.diag)
+      if (!ids.has(c.diag)) bad(`cases.json: case ${c.id} names an unknown diagnosis`); if (CF.diagnoses.length < CF.cases.length + 2) bad('cases.json: the diagnosis list needs at least two decoys'); if (seen.has(c.diag)) bad(`cases.json: two cases share the diagnosis ${c.diag}`); seen.add(c.diag)
       const ps = { panelW: sys.panelW, psh: sys.psh, derate: model.derate, rise: model.sun.rise, set: model.sun.set, batV: sys.sysV, batAh: sys.ah, dod: model.chemistries[sys.chem].dod, chgEff: model.chemistries[sys.chem].chargeEfficiency, invEff: model.inverter.efficiency, invStandbyW: model.inverter.standbyW, loads: c.loads.map((id) => ({ w: byId[id].w, ac: byId[id].ac, from: byId[id].from, to: byId[id].to })) }
       const sim = P.simulate(ps, 3, 15), k = Math.round(c.t * 4), pk = Math.max(...sim.solar, 1)
       const cfg = (o) => ({ B, chem: sys.chem, sysV: sys.sysV, ah: sys.ah, peak: pk, region: B.ac.us, panel: model.panel.examples.small, cableOhm, scenario: c.scenario, ...o })
