@@ -50,7 +50,7 @@
     if (charging || regulating) vt = (i.soc < B.absorbUntil && charging ? cv.absorb : cv.float) * i.sysV / 12
     else vt = ocv + Math.min(0, iBat) * rint + (openNeg ? 0 : 0)             // discharging lowers the terminal voltage
     var lowCut = bad && vt < sc.lowCutV * n                                   // the inverter shuts down on low battery voltage
-    if (lowCut) { iLoad = 0; iClosed = 0; vt = ocv }
+    if (lowCut) { iLoad = 0; iClosed = 0; iBat = panelOn ? 0.1 : 0; vt = panelOn ? cv.absorb * i.sysV / 12 : ocv; if (panelOn) charging = true }
     var rCorr = i.scenario === 'corroded' ? sc.corrodedOhm : 0.0005
     var vLug = vt - iLoad * rCorr
     var vFuseOut = i.scenario === 'blownFuse' ? 0 : vLug - iLoad * sc.fuseOhm

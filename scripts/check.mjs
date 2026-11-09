@@ -322,7 +322,7 @@ if (!/13\.3 to 13\.6 V/.test(text('multimeters.html')) || !/nearly flat/.test(te
     const seen = new Set()
     for (const c of CF.cases) {
       if (!ids.has(c.diag)) bad(`cases.json: case ${c.id} names an unknown diagnosis`); if (CF.diagnoses.length < CF.cases.length + 2) bad('cases.json: the diagnosis list needs at least two decoys'); if (seen.has(c.diag)) bad(`cases.json: two cases share the diagnosis ${c.diag}`); seen.add(c.diag)
-      const ps = { panelW: sys.panelW, psh: sys.psh, derate: model.derate, rise: model.sun.rise, set: model.sun.set, batV: sys.sysV, batAh: sys.ah, dod: model.chemistries[sys.chem].dod, chgEff: model.chemistries[sys.chem].chargeEfficiency, invEff: model.inverter.efficiency, invStandbyW: model.inverter.standbyW, loads: c.loads.map((id) => ({ w: byId[id].w, ac: byId[id].ac, from: byId[id].from, to: byId[id].to })) }
+      const ps = { panelW: sys.panelW, psh: sys.psh, derate: model.derate, rise: model.sun.rise, set: model.sun.set, batV: sys.sysV, batAh: sys.ah, dod: model.chemistries[sys.chem].dod, chgEff: model.chemistries[sys.chem].chargeEfficiency, invEff: model.inverter.efficiency, invStandbyW: model.inverter.standbyW, loads: c.loads.map((l) => { const id = typeof l === 'string' ? l : l.id; return { w: byId[id].w, ac: byId[id].ac, from: l.from ?? byId[id].from, to: l.to ?? byId[id].to } }) }
       const sim = P.simulate(ps, 3, 15), k = Math.round(c.t * 4), pk = Math.max(...sim.solar, 1)
       const cfg = (o) => ({ B, chem: sys.chem, sysV: sys.sysV, ah: sys.ah, peak: pk, region: B.ac.us, panel: model.panel.examples.small, cableOhm, scenario: c.scenario, ...o })
       const w = Mt.world(Mt.inputs(sim, k, cfg({})))
@@ -331,7 +331,15 @@ if (!/13\.3 to 13\.6 V/.test(text('multimeters.html')) || !/nearly flat/.test(te
       const wh = Mt.world(Mt.inputs(sim, k, cfg({ scenario: 'normal' })))
       const allHealthy = c.evidence.every((ev) => { const r = Mt.read({ dial: ev.dial, jack: 'v', red: ev.red, black: ev.black }, B, wh); return r.value >= ev.min && r.value <= ev.max })
       if (allHealthy) bad(`cases.json: case ${c.id}'s evidence also matches a healthy system`)
+      // the evidence must discriminate against every other fault at the case's time, and the case must hold for the whole time the slider could be left on
+      for (const other of ['blownFuse', 'corroded', 'panelOpen', 'openNeg', 'badCell']) if (other !== c.scenario) { const wo = Mt.world(Mt.inputs(sim, k, cfg({ scenario: other }))); if (c.evidence.every((ev) => { const r = Mt.read({ dial: ev.dial, jack: 'v', red: ev.red, black: ev.black }, B, wo); return r.value >= ev.min && r.value <= ev.max })) bad(`cases.json: case ${c.id}'s evidence also fits the fault ${other}`) }
+      const want = { blownFuse: 'fuse', corroded: 'post', panelOpen: 'panel', openNeg: 'neg', badCell: 'cell' }[c.scenario]; if (c.diag !== want) bad(`cases.json: case ${c.id} (${c.scenario}) must be diagnosed as ${want}, not ${c.diag}`)
+      if (/\d+\s?%/.test(c.symptom + c.evidence.map((e) => e.what).join(' '))) bad(`cases.json: case ${c.id} quotes a percentage that the meter cannot confirm`)
+      for (const [word, id] of [['kettle', 'kettle'], ['pump', 'pump'], ['lights', 'lights'], ['TV', 'tv'], ['router', 'router']]) if (c.symptom.includes(word) && !c.loads.some((l) => (typeof l === 'string' ? l : l.id) === id)) bad(`cases.json: case ${c.id} mentions the ${word} but does not run it`)
+      if (c.scenario === 'panelOpen') for (let hh = 11; hh <= 13; hh += 0.25) { const wh2 = Mt.world(Mt.inputs(sim, Math.round(hh * 4), cfg({ scenario: 'normal' }))); if (!wh2.charging) bad(`cases.json: case 3's healthy system is not charging at ${hh}h, so Voc-versus-Vmp would not discriminate`) }
     } }
+  // a failed cell with the sun up: the inverter trips, the panel charges, the panel reads Vmp (never Voc across a connected battery)
+  { const w = W({ scenario: 'badCell', soc: 0.5, batW: -150, servedW: 1000, solarW: 300, solarPeakW: 350 }); if (!(w.lowCut && w.charging)) bad('meter.js: a tripped inverter in daylight should leave the panel charging'); if (!(R({ red: 'pv+', black: 'pv-' }, w).value < 20)) bad('meter.js: a panel charging a battery cannot read Voc') }
   // a dead battery shuts the inverter down
   if (!(W({ acOn: false }).acOn === false)) bad('meter.js: acOn false must switch the outlet off')
   // the dead-inverter scenario

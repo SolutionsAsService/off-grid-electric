@@ -11,7 +11,7 @@
     {
       "id": "fuse",
       "label": "The main fuse has blown",
-      "why": "Volts reach the battery side of the fuse but not the other side. A fuse is a wire that must pass current; with the power off, a good one shows a few milliohms and a blown one shows OL."
+      "why": "Volts reach the battery side of the fuse but not the other side. A fuse is a wire that must pass current: with the power off, a good one reads well under an ohm (about 0.2 ohm with the leads; REL removes their share) and a blown one reads OL."
     },
     {
       "id": "post",
@@ -31,7 +31,7 @@
     {
       "id": "cell",
       "label": "A battery cell has failed",
-      "why": "A battery that reads far below its resting voltage for its charge, and sags under load, has a failed cell. The fuse, cable and inverter are blameless; the inverter switches off on low volts."
+      "why": "A battery that rests far below the voltage a partly charged battery should show has a failed cell. The fuse, cable and inverter are blameless; the inverter switches itself off on low battery volts."
     },
     {
       "id": "inverter",
@@ -48,7 +48,7 @@
     {
       "id": 1,
       "title": "Everything went dark",
-      "symptom": "At 20:00 the lights, the router and the TV all went off together. The battery monitor still shows plenty of charge.",
+      "symptom": "At 20:00 the lights, the router and the TV all went off together.",
       "scenario": "blownFuse",
       "diag": "fuse",
       "t": 20,
@@ -80,14 +80,19 @@
     {
       "id": 2,
       "title": "Dim lights when the pump runs",
-      "symptom": "At 07:30 the pump starts and the lights dim; the battery monitor shows 90%.",
+      "symptom": "At 07:30 the pump starts and the lights dim.",
       "scenario": "corroded",
       "diag": "post",
       "t": 7.5,
       "loads": [
         "fridge",
         "router",
-        "pump"
+        "pump",
+        {
+          "id": "lights",
+          "from": 6,
+          "to": 9
+        }
       ],
       "evidence": [
         {
@@ -103,14 +108,19 @@
     {
       "id": 3,
       "title": "The batteries never recharge",
-      "symptom": "Three sunny days and the monitor falls a little more every night. It is 12:00 now and the sun is out.",
+      "symptom": "Three sunny days and the batteries are lower every night. It is 12:00 now and the sun is out.",
       "scenario": "panelOpen",
       "diag": "panel",
       "t": 12,
       "loads": [
         "fridge",
         "router",
-        "laptop"
+        "laptop",
+        {
+          "id": "tv",
+          "from": 18,
+          "to": 24
+        }
       ],
       "evidence": [
         {
@@ -122,7 +132,7 @@
           "max": 25
         },
         {
-          "what": "DC volts across the battery (not being charged: under 13.8 V)",
+          "what": "DC volts across the battery (a charging battery reads 14 V or more in sun; this one is under 13.8 V)",
           "dial": "dcv",
           "red": "bat+",
           "black": "bat-",
@@ -134,7 +144,7 @@
     {
       "id": 4,
       "title": "Dead outlet, good fuse",
-      "symptom": "At 20:00 the outlet is dead and the DC lights are out. The fuse looks fine and the battery monitor shows a healthy charge.",
+      "symptom": "At 20:00 the outlet is dead and the DC lights are out. The fuse looks fine.",
       "scenario": "openNeg",
       "diag": "neg",
       "t": 20,
@@ -165,18 +175,22 @@
     {
       "id": 5,
       "title": "The inverter trips on the kettle",
-      "symptom": "At 07:06 the kettle goes on and the inverter shuts down. The monitor says 80%, and the fuse and cable look fine.",
+      "symptom": "At 21:06 the kettle goes on and the inverter shuts down. The fuse and cable look fine.",
       "scenario": "badCell",
       "diag": "cell",
-      "t": 7.1,
+      "t": 21.1,
       "loads": [
         "fridge",
         "router",
-        "kettle"
+        {
+          "id": "kettle",
+          "from": 21,
+          "to": 21.25
+        }
       ],
       "evidence": [
         {
-          "what": "DC volts across the battery posts (a healthy 80% battery rests near 13.2 V)",
+          "what": "DC volts across the battery posts (a healthy, partly charged battery rests above 12.8 V)",
           "dial": "dcv",
           "red": "bat+",
           "black": "bat-",

@@ -16,7 +16,7 @@ OG.boot(function (G) {
     }
     var free = mkSim(S.c, S.v, S.ah, S.p, S.sun, A.filter(function (a) { return S.l.indexOf(a.id) !== -1 }).map(function (a) { return { w: a.w, ac: a.ac, from: a.from, to: a.to } }))
     var caseCtx = {}
-    function ctxFor(c) { if (!c) return free; if (!caseCtx[c.id]) { var y = CF.system; caseCtx[c.id] = mkSim(y.chem, y.sysV, y.ah, y.panelW, y.psh, c.loads.map(function (id) { return { w: byApp[id].w, ac: byApp[id].ac, from: byApp[id].from, to: byApp[id].to } })) } return caseCtx[c.id] }
+    function ctxFor(c) { if (!c) return free; if (!caseCtx[c.id]) { var y = CF.system; caseCtx[c.id] = mkSim(y.chem, y.sysV, y.ah, y.panelW, y.psh, c.loads.map(function (l) { var id = typeof l === 'string' ? l : l.id, a = byApp[id]; return { w: a.w, ac: a.ac, from: l.from !== undefined ? l.from : a.from, to: l.to !== undefined ? l.to : a.to } })) } return caseCtx[c.id] }
     var sim = free.sim
     var awg = G.awg.filter(function (r) { return r.awg === B.scene.cableAwg })[0], cableOhm = awg.ohmsPerKft / 304.8 * B.scene.cableMetres
     var st = { notes: [], cs: {}, dx: '', mode: 'free', caseId: 0, notes: [], tries: 0, solved: false, dial: 'off', jack: 'v', red: '', black: '', lead: 'red', rel: false, blown: false, blowMsg: '', t: 12, scenario: 'normal', isolate: false, panelDisc: false, region: 'us', done: {} }
@@ -191,7 +191,7 @@ OG.boot(function (G) {
       var cx = ctxFor(curCase()), sim = cx.sim, i = idx(); $('vm-status').textContent = LABM ? G.clock(st.t) + ': the sun is ' + (sim.solar[i] > 1 ? 'up' : 'down') + '. Work out what is wrong from the meter.' : G.clock(st.t) + ': sun ' + G.fmt(sim.solar[i]) + ' W, loads ' + G.fmt(sim.served[i]) + ' W, battery ' + Math.round(sim.soc[i] * 100) + '%' + (w.isolate ? ', circuit isolated' : w.iBat > 0.05 ? ', charging at ' + w.iBat.toFixed(1) + ' A' : w.iBat < -0.05 ? ', supplying ' + Math.abs(w.iBat).toFixed(1) + ' A' : ', no net battery current') + (w.acOn ? '' : ', inverter off')
       if (!LABM) MISSIONS.forEach(function (m) { if (!st.done[m.id] && m.ok(setup, r)) st.done[m.id] = 1 })
       st.last = r
-      $('vm-key').textContent = LABM && !st.solved ? 'Case file: the figures under the points and the live-or-dead styling are withheld on purpose. The meter is your only evidence.' : 'Figures under the points: volts to the battery negative post. Dashed grey: no power. Solid: live. Tip R: red probe. Tip B: black probe.'; $('vm-miss').hidden = LABM; $('vm-case').hidden = !LABM; $('vm-scf').hidden = LABM
+      $('vm-key').textContent = LABM && !st.solved ? 'Case file: the figures under the points and the live-or-dead styling are withheld on purpose. The meter is your only evidence.' : 'Figures under the points: volts to the battery negative post. Dashed grey: no power. Solid: live. Tip R: red probe. Tip B: black probe.'; $('vm-t').disabled = LABM && !!curCase(); $('vm-miss').hidden = LABM; $('vm-case').hidden = !LABM; $('vm-scf').hidden = LABM
       document.querySelectorAll('[data-mode]').forEach(function (b) { b.setAttribute('aria-pressed', String(b.getAttribute('data-mode') === st.mode)) })
       $('vm-rec').disabled = !r.display || !!r.dead || st.dial === 'off' || !st.red || !st.black; paintNotes(); if (LABM) { var ck = [st.caseId, st.solved, st.tries, st.hint, st.result].join('|'); if (ck !== st.ck) { st.ck = ck; paintCase() } }
       var n = MISSIONS.filter(function (m) { return st.done[m.id] }).length
@@ -237,7 +237,8 @@ OG.boot(function (G) {
     function submitDx() {
       var c = curCase(), v = $('vm-dxs').value; st.dx = v; if (!c || !v) { st.result = 'Choose a fault first.'; paintCase(); return }
       st.tries++
-      if (v === c.diag) { st.solved = true; var d = CF.diagnoses.filter(function (x) { return x.id === v })[0]; st.result = (st.notes.length ? 'Correct. ' : 'Correct, but you recorded no readings: a guess is not a diagnosis. ') + d.why + ' You recorded ' + st.notes.length + ' reading' + (st.notes.length === 1 ? '' : 's') + (st.tries > 1 ? ' and needed ' + st.tries + ' tries.' : ' and got it first time.') }
+      if (v === c.diag && !st.notes.length) { st.result = 'That is the right fault, but the case stays open: record at least one reading that proves it (Record this reading), then submit again.' }
+      else if (v === c.diag) { st.solved = true; var d = CF.diagnoses.filter(function (x) { return x.id === v })[0]; st.result = 'Correct. ' + d.why + ' You recorded ' + st.notes.length + ' reading' + (st.notes.length === 1 ? '' : 's') + (st.tries > 1 ? ' and needed ' + st.tries + ' tries.' : ' and got it first time.') }
       else st.result = 'Not that one. Check the readings against what that fault would have to produce. ' + (c.evidence.length - (st.hint || 0) > 0 ? 'A hint is available.' : '')
       st.dx = v; st.ck = ''; paintCase(); var rs = $('vm-res'); if (rs) { rs.setAttribute('tabindex', '-1'); rs.focus() }
       if (st.solved) { tone(660, 90, 'sine', 0.06); setTimeout(function () { tone(990, 160, 'sine', 0.06) }, 110); update() } else tone(160, 220, 'sawtooth', 0.05)
