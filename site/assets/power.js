@@ -109,6 +109,7 @@
     else if (c.energy.state === 'fail') label = 'NO POWER'
     else if (c.current.state === 'fail' || c.inverter.state === 'fail') label = 'OVERLOAD'
     else if (c.depth.state === 'watch') label = 'TOO DEEP'
+    else if (c.current.state === 'watch' || c.inverter.state === 'watch') label = 'NEAR LIMIT'
     else label = 'OK'
     c.label = label
     return c

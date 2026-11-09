@@ -142,7 +142,8 @@ OG.boot(function (G) {
   function layoutChart() {
     var W = Math.max(300, Math.round(chart.parentNode.clientWidth)); if (W === K.w && kg) return false
     var h = W < 520 ? 300 : 320
-    K = { w: W, h: h, x0: 46, x1: W - 6, tTop: 28, tBot: Math.round(h * 0.55), sTop: Math.round(h * 0.55) + 30, sBot: h - 28 }
+    var top = W < 520 ? 50 : 28
+    K = { w: W, h: h, x0: 46, x1: W - 6, tTop: top, tBot: Math.round(h * 0.55), sTop: Math.round(h * 0.55) + 30, sBot: h - 28 }
     chart.setAttribute('viewBox', '0 0 ' + W + ' ' + h); chart.setAttribute('width', W); chart.setAttribute('height', h)
     while (chart.childNodes.length > 1) chart.removeChild(chart.lastChild)
     kg = el(chart, 'g'); return true
@@ -166,7 +167,7 @@ OG.boot(function (G) {
     d = ''; for (i = 0; i < n; i++) d += (i ? ' L' : 'M') + X(sim.t[i]).toFixed(1) + ' ' + Yw(sim.load[i]).toFixed(1)
     el(kg, 'path', { class: 'load', d: d })
     var peak = Math.max.apply(null, sim.load), pi = sim.load.indexOf(peak)
-    if (peak > maxW) el(kg, 'text', { class: 'lab', x: Math.min(Math.max(X(sim.t[pi]), K.x0 + 70), K.x1 - 70), y: K.tTop - 8, 'text-anchor': 'middle' }, 'load peaks at ' + fmt(peak) + ' W ▲')
+    if (peak > maxW) el(kg, 'text', { class: 'lab', x: K.x1, y: K.w < 520 ? 38 : 18, 'text-anchor': 'end' }, 'load peaks at ' + fmt(peak) + ' W ▲')
     // battery charge, floor, blackouts
     d = 'M' + X(0) + ' ' + K.sBot; for (i = 0; i < n; i++) d += ' L' + X(sim.t[i]).toFixed(1) + ' ' + Ys(sim.soc[i]).toFixed(1)
     el(kg, 'path', { class: 'soc', d: d + ' L' + X(24) + ' ' + K.sBot + ' Z' })
@@ -199,9 +200,10 @@ OG.boot(function (G) {
     if (L === 'IDLE') msg = 'Nothing is switched on. Flip a breaker.'
     else if (L === 'NO POWER') msg = 'The battery runs empty from ' + clock(sim.t[fd]) + ' and the loads are off for ' + fmt(tot.blackoutH, 1) + ' hours of the day.'
     else if (L === 'OVERLOAD') msg = checks.current.state === 'fail' ? 'The energy works out, but at the busiest moment the loads pull ' + fmt(checks.current.amps) + ' A from the battery, above the ' + fmt(checks.current.limitA) + ' A it can supply.' : 'The energy works out, but the AC loads reach ' + fmt(checks.inverter.peakAcW) + ' W, above the ' + fmt(S.inv) + ' W inverter.'
+    else if (L === 'NEAR LIMIT') msg = 'The energy works out and nothing fails, but the busiest moment is close to a limit: ' + (checks.current.state === 'watch' ? fmt(checks.current.amps) + ' A from a battery rated for ' + fmt(checks.current.limitA) + ' A' : fmt(checks.inverter.peakAcW) + ' W on a ' + fmt(S.inv) + ' W inverter') + '. Real equipment has surge and ageing on top.'
     else if (L === 'TOO DEEP') msg = 'The loads stay powered, but the battery falls to ' + pct(tot.minSoc, fl) + ' at ' + clock(sim.t[mi]) + ', below its ' + Math.round(fl * 100) + '% safe floor. That shortens its life.'
     else msg = 'On paper the energy balance holds: the battery is lowest at ' + clock(sim.t[mi]) + ' at ' + pct(tot.minSoc, fl) + ' (safe floor ' + Math.round(fl * 100) + '%).'
-    var cls = L === 'NO POWER' || L === 'OVERLOAD' ? 'fail' : L === 'TOO DEEP' ? 'watch' : ''
+    var cls = L === 'NO POWER' || L === 'OVERLOAD' ? 'fail' : L === 'TOO DEEP' || L === 'NEAR LIMIT' ? 'watch' : ''
     v.className = 'verdict' + (cls ? ' ' + cls : '')
     byId('vtext').innerHTML = '<span class="tag' + (cls ? ' ' + cls : '') + '">' + L + '</span>' + esc(msg)
     function row(name, c, textv) { var s = c.state === 'ok' ? 'OK' : c.state === 'watch' ? 'WATCH' : 'FAIL'; return '<li><span class="tag' + (c.state === 'ok' ? '' : ' ' + c.state) + '">' + s + '</span><b>' + name + '</b> ' + esc(textv) + '</li>' }

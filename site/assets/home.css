@@ -101,3 +101,4 @@ details.edit input { width: 100%; min-height: 44px; font: 1rem var(--mono); padd
 .tiles b { display: block; font: 900 1.1rem var(--display); text-transform: uppercase; }
 .tiles span { font-size: .92rem; color: var(--ink2); }
 @media (max-width: 719px) { .breakers button { min-height: 52px; } .breakers small:not(.st) { display: none; } .hero .lede { display: none; } .kicker { display: none; } }
+@media (min-width: 1000px) and (min-height: 720px) { .stage { position: sticky; top: 64px; z-index: 6; } }

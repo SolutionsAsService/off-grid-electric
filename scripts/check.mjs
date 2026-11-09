@@ -146,7 +146,7 @@ if (P.wireStatus(2.9, 3) !== 'within' || P.wireStatus(3.1, 3) !== 'over') bad('m
   if (run({ panelW: 800, batAh: 100, dod: 0.8, loads: [{ w: 90, ac: false, from: 18, to: 6 }] }).c.label !== 'TOO DEEP') bad('checks: a battery below its floor is TOO DEEP')
   { const k = run({ batAh: 200, loads: [{ w: 1500, ac: true, from: 12, to: 12.25 }, { w: 40, ac: true, from: 0, to: 24 }] }, { maxC: 0.25 }); if (k.c.label !== 'OVERLOAD' || k.c.current.state !== 'fail') bad('checks: 1,700 W from a 200 Ah lead-acid battery at 0.25C (50 A) must be an OVERLOAD'); if (!close(k.c.current.limitA, 50) || Math.abs(k.c.current.amps - (1500 / 0.9 + 10 + 40 / 0.9) / 12) > 1e-6) bad('checks: peak battery amps = bus watts / volts, limit = C x Ah') }
   { const k = run({ loads: [{ w: 2500, ac: true, from: 12, to: 12.25 }] }, {}); if (k.c.inverter.state !== 'fail' || k.c.label !== 'OVERLOAD') bad('checks: 2,500 W of AC on a 2,000 W inverter must be an OVERLOAD') }
-  { const k = run({ loads: [{ w: 1700, ac: true, from: 12, to: 12.25 }] }, {}); if (k.c.inverter.state !== 'watch') bad('checks: 1,700 W on a 2,000 W inverter (85%) should be WATCH') }
+  { const k = run({ loads: [{ w: 1700, ac: true, from: 12, to: 12.25 }] }, {}); if (k.c.inverter.state !== 'watch' || k.c.label !== 'NEAR LIMIT') bad('checks: 1,700 W on a 2,000 W inverter (85%) should be WATCH and the overall label NEAR LIMIT') }
 }
 
 // ---------------------------------------------------------------- the reviewed design constants (change them on purpose: update here too)
