@@ -99,9 +99,10 @@
   /* The checks behind the verdict, from a simulation `sim` of scenario `s`, with limits { maxC, invRatingW, watch }.
      Not checked: wire, fuses, surge current, panel string voltage, temperature, battery age. */
   P.checks = function (s, sim, lim) {
-    var tot = sim.totals, peakBus = Math.max.apply(null, sim.load.concat([0])), peakAc = Math.max.apply(null, sim.ac.concat([0]))
+    var tot = sim.totals, peakBus = Math.max.apply(null, sim.served.concat([0])), peakAc = 0   // graded on what is actually served, not a hypothetical peak
+    for (var q = 0; q < sim.ac.length; q++) { var share = sim.load[q] > 0 ? sim.served[q] / sim.load[q] : 1; peakAc = Math.max(peakAc, sim.ac[q] * share) }
     var amps = peakBus / s.batV, limitA = lim.maxC * s.batAh
-    var c = { energy: { state: tot.unmet > 0 ? 'fail' : 'ok', unmetWh: tot.unmet, blackoutH: tot.blackoutH }, depth: { state: tot.minSoc < sim.floor ? 'watch' : 'ok', minSoc: tot.minSoc, floor: sim.floor },
+    var c = { energy: { state: tot.unmet > 0 ? 'fail' : 'ok', unmetWh: tot.unmet, blackoutH: tot.blackoutH }, depth: { state: tot.minSoc <= 1e-9 ? 'fail' : tot.minSoc < sim.floor ? 'watch' : 'ok', minSoc: tot.minSoc, floor: sim.floor },
       current: { state: amps > limitA ? 'fail' : amps > lim.watch * limitA ? 'watch' : 'ok', amps: amps, limitA: limitA, peakBusW: peakBus },
       inverter: { state: peakAc > lim.invRatingW ? 'fail' : peakAc > lim.watch * lim.invRatingW ? 'watch' : 'ok', peakAcW: peakAc, ratingW: lim.invRatingW } }
     var anyLoad = s.loads.length > 0, label
