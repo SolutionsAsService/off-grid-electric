@@ -2,7 +2,7 @@
    no request to any other site. */
 (function () {
   'use strict'
-  var NAV = [['index.html', 'Simulator'], ['basics.html', 'Basics'], ['acdc.html', 'AC vs DC'], ['solar.html', 'Solar'], ['system.html', 'Size it'], ['multimeters.html', 'Multimeter'], ['safety.html', 'Safety']]
+  var NAV = [['index.html', 'Simulator'], ['basics.html', 'Basics'], ['acdc.html', 'AC vs DC'], ['solar.html', 'Solar'], ['system.html', 'Sizing'], ['multimeters.html', 'Multimeter'], ['safety.html', 'Safety']]
   var page = document.body.getAttribute('data-page') || ''
   var CUR = { home: 'index.html', basics: 'basics.html', acdc: 'acdc.html', solar: 'solar.html', system: 'system.html', multimeters: 'multimeters.html', safety: 'safety.html' }[page]
 
@@ -32,6 +32,25 @@
     if (history.replaceState) history.replaceState(null, '', location.pathname + writeQuery(s))
   }
 
+  // The learning path: the guide pages in reading order. Each shows where it sits, an "On this page" list when it is long, and previous / next links.
+  var PATH = [['basics.html', 'Basics'], ['acdc.html', 'AC vs DC'], ['solar.html', 'Solar'], ['system.html', 'Sizing'], ['multimeters.html', 'Multimeter']]
+  function wayfinding() {
+    var main = byId('main'), h1 = main && main.querySelector('h1'); if (!main || !h1) return
+    var k = -1; PATH.forEach(function (p, i) { if (p[0] === CUR) k = i })
+    var kick = main.querySelector('.kicker')
+    if (k !== -1 && kick) kick.textContent = 'Step ' + (k + 1) + ' of ' + PATH.length + ' · ' + PATH[k][1]
+    var hs = Array.prototype.slice.call(main.querySelectorAll('h2')).filter(function (h) { return !h.closest('.calc, .vm') })
+    if (k !== -1 && hs.length >= 4) {
+      var used = {}, items = hs.map(function (h) { var id = h.id || h.textContent.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''); while (used[id] || (document.getElementById(id) && document.getElementById(id) !== h)) id += '-x'; used[id] = 1; h.id = id; return '<li><a href="#' + id + '">' + esc(h.textContent) + '</a></li>' })
+      var nav = document.createElement('nav'); nav.className = 'toc'; nav.setAttribute('aria-label', 'On this page'); nav.innerHTML = '<b>On this page</b><ol>' + items.join('') + '</ol>'
+      var after = main.querySelector('.lede') || h1; after.parentNode.insertBefore(nav, after.nextSibling)
+    }
+    if (k !== -1) {
+      var prev = PATH[k - 1], next = PATH[k + 1], d = document.createElement('nav'); d.className = 'pn'; d.setAttribute('aria-label', 'Previous and next page')
+      d.innerHTML = (prev ? '<a rel="prev" href="' + prev[0] + '"><span>Previous · step ' + k + '</span>' + esc(prev[1]) + '</a>' : '<a rel="prev" href="index.html"><span>Back to</span>The simulator</a>') + (next ? '<a rel="next" href="' + next[0] + '"><span>Next · step ' + (k + 2) + '</span>' + esc(next[1]) + '</a>' : '<a rel="next" href="safety.html"><span>Last, and before you build</span>Safety</a>')
+      main.appendChild(d)
+    }
+  }
   function chrome() {
     var skip = document.createElement('a'); skip.className = 'skip'; skip.href = '#main'; skip.textContent = 'Skip to the content'; document.body.insertBefore(skip, document.body.firstChild)
     var h = document.createElement('header'); h.className = 'site'
@@ -44,7 +63,7 @@
 
   var boot = Promise.all([get('data/model.json'), get('data/appliances.json'), get('data/awg.json')]).then(function (r) {
     var G = { model: r[0], appliances: r[1], awg: r[2].rows, metric: r[2].metric, esc: esc, byId: byId, fmt: fmt, clock: clock, readState: readState, carry: carry, writeQuery: writeQuery, P: window.Power }
-    chrome()
+    chrome(); wayfinding()
     document.querySelectorAll('.tblwrap').forEach(function (w) { var cap = w.querySelector('caption'); w.setAttribute('tabindex', '0'); w.setAttribute('role', 'region'); w.setAttribute('aria-label', cap ? cap.textContent : 'Table') })
     G.state = readState(G.appliances)
     G.effective = function () { return G.appliances.map(function (a) { return Object.assign({}, a, { w: G.state.ov[a.id] || a.w }) }) }

@@ -1,0 +1,13 @@
+{
+  "note": "Illustrative battery behaviour for the virtual multimeter, per 12 V. These are typical shapes, not measurements of any battery; scale by the system voltage / 12.",
+  "ocv12": {
+    "lifepo4": [[100, 13.4], [90, 13.3], [70, 13.2], [40, 13.1], [20, 13.0], [10, 12.8], [0, 11.0]],
+    "lead": [[100, 12.7], [75, 12.4], [50, 12.2], [25, 12.0], [0, 11.8]]
+  },
+  "rintOhmAh": { "lifepo4": 1.0, "lead": 2.0 },
+  "charge12": { "lifepo4": { "absorb": 14.2, "float": 13.6 }, "lead": { "absorb": 14.4, "float": 13.5 } },
+  "absorbUntil": 0.95,
+  "meter": { "fuseA": 10, "shuntOhm": 0.01, "leadOhm": 0.2, "beepBelowOhm": 30 },
+  "scene": { "fuseOhm": 0.0006, "corrodedOhm": 0.25, "cableMetres": 5, "cableAwg": "6", "elementOhm": 14.4, "linkOhm": 0.001 },
+  "ac": { "us": { "v": 120, "hz": 60 }, "eu": { "v": 230, "hz": 50 } }
+}

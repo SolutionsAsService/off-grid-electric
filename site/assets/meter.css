@@ -1,0 +1,31 @@
+/* The virtual multimeter. The circuit picture is drawn in real pixels by meterpage.js. */
+.vm { margin: 18px 0 8px; }
+.vm-grid { display: grid; gap: 18px; grid-template-columns: 1fr; }
+@media (min-width: 900px) { .vm-grid { grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); } }
+.vm-scene, .vm-meter, .vm-miss { background: var(--card); border: 4px solid var(--ink); box-shadow: 8px 8px 0 var(--accent); padding: 6px 16px 14px; }
+.vm-miss { margin-top: 22px; }
+.vm-h { font: 900 .9rem var(--display); text-transform: uppercase; letter-spacing: .06em; margin: .6em 0 .5em; }
+#vm-svg { width: 100%; height: auto; display: block; }
+#vm-svg text { font: 700 12px var(--mono); fill: var(--ink2); }
+#vm-svg .vm-cap { font-size: 12px; fill: var(--ink2); }
+#vm-svg .vm-n { fill: var(--ink); font-weight: 900; font-size: 13px; pointer-events: none; }
+#vm-svg .vm-wire { stroke: var(--ink2); stroke-width: 3; fill: none; }
+#vm-svg .vm-thick { stroke: var(--copper); stroke-width: 7; }
+#vm-svg .vm-dash { stroke-dasharray: 4 6; stroke-width: 2; }
+#vm-svg .vm-fuse { fill: var(--bg); stroke: var(--ink); stroke-width: 3; }
+#vm-svg .vm-pt { fill: var(--bg); stroke: var(--ink); stroke-width: 3; }
+#vm-svg .vm-node { cursor: pointer; }
+#vm-svg .vm-node:hover .vm-pt { stroke: var(--accent); }
+#vm-svg .vm-ring { fill: none; stroke-width: 4; }
+#vm-svg .vm-ring.red { stroke: var(--danger); } #vm-svg .vm-ring.blk { stroke: var(--ink); } #vm-svg .vm-ring.both { stroke: var(--volt); stroke-dasharray: 6 4; }
+.vm-ctl { display: grid; gap: 10px 14px; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); margin: 10px 0; }
+.vm-lcd { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; background: #cfd8c0; color: #1a2012; border: 4px solid var(--ink); padding: 10px 14px; min-height: 86px; font-family: var(--mono); }
+.vm-lcd.dead { background: #8e9786; color: #3e4535; }
+.vm-num { font: 900 clamp(2rem, 8vw, 3.2rem)/1 var(--mono); letter-spacing: .02em; min-width: 5ch; }
+.vm-unit { font: 800 1rem var(--mono); } .vm-mode { flex: 0 0 100%; font: 800 .72rem var(--mono); letter-spacing: .08em; }
+.vm-beep { margin-left: auto; font: 900 .8rem var(--mono); border: 2px solid currentColor; padding: 1px 6px; opacity: .15; } .vm-beep.on { opacity: 1; background: #1a2012; color: #cfd8c0; }
+.vm-msg { min-height: 3.6em; margin: 8px 0; font-size: .95rem; max-width: none; } .vm-msg.bad { color: var(--danger); font-weight: 700; }
+.vm-dial, .vm-jacks { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0; }
+.vm-meter .field { margin: 8px 0; }
+.vm-miss ol { margin: 0; padding-left: 1.4em; } .vm-miss li { margin: 0 0 10px; } .vm-miss li b { display: block; } .vm-miss li span { color: var(--ink2); font-size: .92rem; } .vm-miss li.done b { color: var(--ok); }
+@media (max-width: 899px) { .vm-meter { order: -1; } }

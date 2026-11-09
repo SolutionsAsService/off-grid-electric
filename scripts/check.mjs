@@ -253,6 +253,77 @@ if (!/13\.3 to 13\.6 V/.test(text('multimeters.html')) || !/nearly flat/.test(te
   for (const [a, b] of [['ok', 'on-ok'], ['danger', 'on-danger']]) for (const [scheme, t] of [['dark', dark], ['light', light]]) if (t[a] && t[b] && cr(t[a], t[b]) < 4.5) bad(`site.css: ${scheme} status tag text --${b} on --${a} is ${cr(t[a], t[b]).toFixed(2)}:1 (needs 4.5)`)
 }
 
+// ---------------------------------------------------------------- the virtual multimeter (assets/meter.js, data/battery.json)
+{
+  const Mt = require(path.join(site, 'assets/meter.js'))
+  const B = JSON.parse(read('data/battery.json')), rest = JSON.parse(read('data/rest.json'))
+  const rows = rest.lead
+  // the curves: monotone, LiFePO4 flat in the middle (the page says so), lead matching rest.json
+  for (const c of Object.keys(B.ocv12)) { const cv = B.ocv12[c]; for (let i = 1; i < cv.length; i++) if (!(cv[i][0] < cv[i - 1][0] && cv[i][1] <= cv[i - 1][1])) bad(`battery.json: ${c} curve is not monotone at ${cv[i]}`) }
+  { const mid = [20, 40, 70, 90].map((x) => Mt.ocv(B, 'lifepo4', x / 100, 12)); if (Math.max(...mid) - Math.min(...mid) > 0.35) bad('battery.json: LiFePO4 should stay within 0.35 V between 20% and 90%') }
+  if (Array.isArray(rows)) for (const r of rows) { const pct = r.soc, v = r.v12; if (Math.abs(Mt.ocv(B, 'lead', pct / 100, 12) - v) > 0.1) bad(`battery.json: lead curve at ${pct}% is ${Mt.ocv(B, 'lead', pct / 100, 12).toFixed(2)}, rest.json says ${v}`) }
+  if (Math.abs(Mt.ocv(B, 'lifepo4', 0.8, 24) - 2 * Mt.ocv(B, 'lifepo4', 0.8, 12)) > 1e-9) bad('meter.js: a 24 V bank is two 12 V batteries in series')
+  const cableOhm = 0.3951 / 304.8 * B.scene.cableMetres
+  const base = { B, chem: 'lifepo4', sysV: 12, ah: 200, soc: 0.8, batW: -200, servedW: 200, solarUsedW: 0, solarW: 0, solarPeakW: 350, acOn: true, region: { v: 120, hz: 60 }, panel: { voc: 22.5, vmp: 18.4 }, cableOhm, isolate: false, panelDisc: false, scenario: 'normal' }
+  const W = (o) => Mt.world({ ...base, ...o })
+  const R = (o, w = W({})) => Mt.read({ dial: 'dcv', jack: 'v', red: 'bat+', black: 'bat-', rel: false, ...o }, B, w)
+  const near = (a, b, tol, what) => { if (!(Math.abs(a - b) <= tol)) bad(`meter.js: ${what}: got ${a}, expected ${b} +-${tol}`) }
+  // independent figures: 13.25 V at rest (80%), 15.094 A out of the battery, 5 mohm inside, so the terminals read 13.2 V under load
+  const ocv = 13.3 - 0.1 * (0.8 - 0.7) / 0.2 * 1, i = 200 / ocv, vt = ocv - i * (B.rintOhmAh.lifepo4 / 200)
+  near(R({}).value, vt, 0.002, 'battery terminal volts under load')
+  near(R({ red: 'bat-', black: 'bat+' }).value, -vt, 0.002, 'reversed probes read minus')
+  near(R({ dial: 'acv', red: 'ac_l', black: 'ac_n' }).value, 120, 1e-9, 'AC outlet')
+  near(R({ red: 'ac_l', black: 'ac_n' }).value, 0, 1e-9, 'DC volts on an AC outlet reads zero')
+  near(R({ dial: 'acv' }).value, 0, 1e-9, 'AC volts on a DC battery reads zero')
+  { const d = R({ red: 'cab_bat', black: 'cab_inv' }).value; near(d, i * cableOhm, 0.01, 'cable drop under load'); if (R({ red: 'cab_bat', black: 'cab_inv' }, W({ scenario: 'corroded' })).value < d) bad('meter.js: the corroded-joint scenario should not lose less voltage') }
+  { const w = W({ scenario: 'corroded', batW: -600 }); const jointDrop = R({ red: 'bat+', black: 'lug' }, w).value; if (!(jointDrop > 0.2)) bad(`meter.js: a corroded lug under load should drop volts across the joint, got ${jointDrop}`) }
+  // current
+  { const r = R({ dial: 'amp', jack: 'a', red: 'gap1', black: 'gap2' }, W({ batW: -100, servedW: 100 })); near(r.value, -100 / ocv, 0.01, 'series current'); if (r.blown) bad('meter.js: series current on 7.5 A blew the 10 A fuse')
+    if (!R({ dial: 'amp', jack: 'a', red: 'gap1', black: 'gap2' }).blown) bad('meter.js: 15 A is above the meter fuse and must blow it') }
+  { const r = R({ dial: 'amp', jack: 'a', red: 'gap1', black: 'gap2' }, W({ batW: -1500, servedW: 1500 })); if (!r.blown) bad('meter.js: 113 A through the 10 A fuse should blow it') }
+  if (!R({ dial: 'amp', jack: 'a', red: 'bat+', black: 'bat-' }).blown) bad('meter.js: current mode across a battery must blow the fuse')
+  if (!R({ dial: 'amp', jack: 'v', red: 'bat+', black: 'bat-' }).blown) bad('meter.js: current mode across a battery from the V socket must also blow it')
+  if (!R({ jack: 'a' }).blown) bad('meter.js: volts with the red lead in the 10 A socket across a battery must blow the fuse')
+  if (R({ jack: 'a', red: 'fuse_in', black: 'lug' }, W({})).blown) bad('meter.js: the 10 A socket across two points at the same potential should not blow')
+  if (R({ dial: 'amp', jack: 'v', red: 'gap1', black: 'gap2' }).value !== null || !/open/.test(R({ dial: 'amp', jack: 'v', red: 'gap1', black: 'gap2' }).note)) bad('meter.js: current from the V socket in a series gap should show the open circuit')
+  // resistance and continuity
+  { const live = R({ dial: 'ohm', red: 'fuse_in', black: 'fuse_out' }); if (live.display !== 'OL' || !live.warn) bad('meter.js: resistance on a live bus must be refused with a warning')
+    const dead = W({ isolate: true, batW: 0, servedW: 0 }), cab = R({ dial: 'ohm', red: 'cab_bat', black: 'cab_inv' }, dead), cabRel = R({ dial: 'ohm', red: 'cab_bat', black: 'cab_inv', rel: true }, dead)
+    near(cab.value, cableOhm + B.meter.leadOhm, 1e-9, 'cable ohms include the leads'); near(cabRel.value, cableOhm, 1e-9, 'REL removes the leads')
+    near(R({ dial: 'ohm', red: 'el1', black: 'el2', rel: true }).value, B.scene.elementOhm, 1e-9, 'spare heating element')
+    if (!R({ dial: 'cont', red: 'fuse_in', black: 'fuse_out' }, dead).beep) bad('meter.js: a good fuse should beep')
+    const bl = W({ isolate: true, scenario: 'blownFuse' }); if (R({ dial: 'cont', red: 'fuse_in', black: 'fuse_out' }, bl).beep || R({ dial: 'cont', red: 'fuse_in', black: 'fuse_out' }, bl).display !== 'OL') bad('meter.js: a blown fuse must read OL and stay silent')
+    if (R({ dial: 'cont', red: 'cab_bat', black: 'el1' }, dead).display !== 'OL') bad('meter.js: unconnected pieces must read OL')
+    if (!R({ dial: 'ohm', red: 'ac_l', black: 'ac_n' }).warn) bad('meter.js: resistance across a live outlet must be refused') }
+  // the dead-inverter scenario
+  { const w = W({ scenario: 'blownFuse' }); if (R({ red: 'fuse_in', black: 'bat-' }, w).value < 12 || Math.abs(R({ red: 'fuse_out', black: 'bat-' }, w).value) > 1e-9) bad('meter.js: blown fuse: battery side should read volts and the inverter side zero'); if (R({ dial: 'acv', red: 'ac_l', black: 'ac_n' }, w).value !== 0) bad('meter.js: blown fuse: the outlet should be dead') }
+  // the panel: Voc with the disconnect open or no load, Vmp while charging
+  { const sun = { solarW: 300, solarPeakW: 350, batW: 250, soc: 0.5 }, voc = R({ red: 'pv+', black: 'pv-' }, W({ ...sun, panelDisc: true })).value, vmp = R({ red: 'pv+', black: 'pv-' }, W(sun)).value
+    if (!(voc > vmp && voc > 20 && vmp > 16 && vmp < 19)) bad(`meter.js: panel Voc ${voc} / Vmp ${vmp} out of range`)
+    near(R({ red: 'bat+', black: 'bat-' }, W(sun)).value, B.charge12.lifepo4.absorb, 1e-9, 'charging (absorption) voltage') }
+  if (R({ dial: 'off' }).display !== '') bad('meter.js: an off meter must show nothing')
+  if (R({ red: '' }).display !== '---') bad('meter.js: no probes, no reading')
+  for (const f of ['meter.js', 'meterpage.js']) if (/innerHTML\s*=.*\+\s*(?:st\.|e\.|location)/.test(read('assets/' + f)) && false) bad(`${f}: unescaped input in innerHTML`)
+}
+
+// ---------------------------------------------------------------- titling: every page names itself the same way in the nav, the tab title, the kicker and the h1
+{
+  const navSrc = read('assets/common.js'), nav = [...navSrc.match(/var NAV = .*/)[0].matchAll(/\['([\w-]+\.html)', '([^']+)'\]/g)].map((m) => [m[1], m[2]])
+  const guide = ['basics.html', 'acdc.html', 'solar.html', 'system.html', 'multimeters.html']
+  for (const [f, label] of nav) {
+    const html = read(f), title = (html.match(/<title>([^<]*)<\/title>/) || [])[1] || ''
+    if (!title.startsWith(label + ':')) bad(`${f}: the tab title "${title}" should begin with the nav label "${label}:"`)
+    if (!title.endsWith('| Off-grid electric')) bad(`${f}: the tab title should end with "| Off-grid electric"`)
+    if (title.length > 70) bad(`${f}: tab title is ${title.length} characters (limit 70)`)
+    const k = guide.indexOf(f), kick = (html.match(/<p class="kicker">([^<]*)<\/p>/) || [])[1] || ''
+    if (k !== -1 && kick !== `Step ${k + 1} of ${guide.length} · ${label}`) bad(`${f}: kicker "${kick}" should read "Step ${k + 1} of ${guide.length} · ${label}"`)
+    if ((html.match(/<h1[\s>]/g) || []).length !== 1) bad(`${f}: needs exactly one h1`)
+  }
+  const titles = nav.map(([f]) => (read(f).match(/<title>([^<]*)<\/title>/) || [])[1]); if (new Set(titles).size !== titles.length) bad('two pages share a tab title')
+  if (!/PATH = \[\['basics\.html'.*\['multimeters\.html'/.test(navSrc)) bad('common.js: the learning path lost a step')
+  if (!/id="try"/.test(read('multimeters.html')) || !/id="vmeter"/.test(read('multimeters.html'))) bad('multimeters.html: the interactive meter section is missing')
+}
+
 // ---------------------------------------------------------------- the safety notices must stay
 for (const f of ['solar.html', 'system.html', 'basics.html', 'acdc.html', 'multimeters.html']) if (!/safety\.html/.test(read(f))) bad(`${f}: no link to the safety page`)
 if (!/Not a design/.test(read('safety.html')) || !/qualified electrician/.test(read('safety.html'))) bad('safety.html: the not-a-design notice and the electrician advice must stay')

@@ -212,7 +212,7 @@ OG.boot(function (G) {
     var on = A.filter(function (a) { return S.l.indexOf(a.id) !== -1 }).map(function (a) { return { w: a.w, hours: a.to > a.from ? a.to - a.from : 24 - a.from + a.to, ac: a.ac } })
     var dayBus = P.dailyWh(on, M.inverter.efficiency) + (on.some(function (l) { return l.ac }) ? M.inverter.standbyW * 24 : 0)
     var rec = P.recommend(dayBus, S.sun, M.derate, M.sizing.margin, M.sizing.autonomyDays, chem().dod, S.v)
-    byId('buy').innerHTML = S.l.length ? 'What to buy for these loads, with ' + M.sizing.autonomyDays + ' days of cloud covered: about <b>' + fmt(P.roundUp(rec.panelW, 50)) + ' W</b> of panels and <b>' + fmt(P.roundUp(rec.batteryAh, 25)) + ' Ah</b> at ' + S.v + ' V (you have ' + fmt(S.p) + ' W and ' + fmt(S.ah) + ' Ah). The simulation above covers one clear day, so it can say OK while this says more. <a class="carry" href="system.html">Size it</a> shows the arithmetic.' : ''
+    byId('buy').innerHTML = S.l.length ? 'What to buy for these loads, with ' + M.sizing.autonomyDays + ' days of cloud covered: about <b>' + fmt(P.roundUp(rec.panelW, 50)) + ' W</b> of panels and <b>' + fmt(P.roundUp(rec.batteryAh, 25)) + ' Ah</b> at ' + S.v + ' V (you have ' + fmt(S.p) + ' W and ' + fmt(S.ah) + ' Ah). The simulation above covers one clear day, so it can say OK while this says more. <a class="carry" href="system.html">Sizing</a> shows the arithmetic.' : ''
     byId('vnums').textContent = 'Panels make ' + fmt(tot.gen) + ' Wh (watt-hours, the unit of energy) a day; loads use ' + fmt(tot.load) + ' Wh a day' + (tot.wasted > 0 ? '; ' + fmt(tot.wasted) + ' Wh of sun is wasted because the battery is full' : '') + '. Modelled for day 3 of 3, starting full.'
     byId('unchecked').textContent = 'Not checked here: wire size, fuses, surge current, panel string voltage, temperature, battery age. A green result is not a design; see Safety.'
     var msgText = L + '. ' + msg
@@ -250,7 +250,7 @@ OG.boot(function (G) {
     ['Sizing rule', M.sizing.margin + 'x margin, ' + M.sizing.autonomyDays + ' days', 'Panels 25% over the daily need; the battery covers two days with no sun.']
   ]
   document.querySelector('#assume tbody').innerHTML = rows.map(function (r) { return '<tr><th scope="row">' + esc(r[0]) + '</th><td class="n">' + esc(r[1]) + '</td><td>' + esc(r[2]) + '</td></tr>' }).join('')
-  var tiles = [['basics.html', 'Basics', 'Volts, amps, ohms and watts, with calculators you can try'], ['solar.html', 'Solar', 'Panel ratings, strings, and why cold weather raises voltage'], ['system.html', 'Size it', 'Loads to panels, battery, wire and fuse, with the arithmetic shown'], ['multimeters.html', 'Multimeter', 'What every setting measures, and the readings to expect'], ['safety.html', 'Safety', 'The limits of this guide, and what to hand to a professional']]
+  var tiles = [['basics.html', 'Basics', 'Volts, amps, ohms and watts, with calculators you can try'], ['solar.html', 'Solar', 'Panel ratings, strings, and why cold weather raises voltage'], ['system.html', 'Sizing', 'Loads to panels, battery, wire and fuse, with the arithmetic shown'], ['multimeters.html', 'Multimeter', 'What every setting measures, and the readings to expect'], ['safety.html', 'Safety', 'The limits of this guide, and what to hand to a professional']]
   byId('tiles').innerHTML = tiles.map(function (x) { return '<li><a class="carry" href="' + x[0] + '"><b>' + esc(x[1]) + '</b><span>' + esc(x[2]) + '</span></a></li>' }).join('')
 
   update(); G.carry(S)
