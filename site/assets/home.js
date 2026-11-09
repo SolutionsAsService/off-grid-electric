@@ -31,6 +31,7 @@ OG.boot(function (G) {
   // ---- editable watts
   var ob = document.querySelector('#ovtbl tbody')
   ob.innerHTML = G.appliances.map(function (a) { return '<tr><th scope="row"><label for="ov-' + a.id + '">' + esc(a.name) + '</label></th><td><input id="ov-' + a.id + '" type="number" min="1" max="20000" step="1" value="' + a.w + '" data-id="' + a.id + '"></td></tr>' }).join('')
+  ob.addEventListener('change', function (e) { var i = e.target, v = parseFloat(i.value); if (!isFinite(v) || v <= 0) { i.value = G.appliances.filter(function (a) { return a.id === i.getAttribute('data-id') })[0].w; delete S.ov[i.getAttribute('data-id')]; update() } })
   ob.addEventListener('input', function (e) {
     var i = e.target, v = parseFloat(i.value), id = i.getAttribute('data-id'), def = G.appliances.filter(function (a) { return a.id === id })[0].w
     if (!isFinite(v) || v <= 0) { delete S.ov[id]; return }
@@ -212,7 +213,7 @@ OG.boot(function (G) {
     var dayBus = P.dailyWh(on, M.inverter.efficiency) + (on.some(function (l) { return l.ac }) ? M.inverter.standbyW * 24 : 0)
     var rec = P.recommend(dayBus, S.sun, M.derate, M.sizing.margin, M.sizing.autonomyDays, chem().dod, S.v)
     byId('buy').innerHTML = S.l.length ? 'What to buy for these loads, with ' + M.sizing.autonomyDays + ' days of cloud covered: about <b>' + fmt(P.roundUp(rec.panelW, 50)) + ' W</b> of panels and <b>' + fmt(P.roundUp(rec.batteryAh, 25)) + ' Ah</b> at ' + S.v + ' V (you have ' + fmt(S.p) + ' W and ' + fmt(S.ah) + ' Ah). The simulation above covers one clear day, so it can say OK while this says more. <a class="carry" href="system.html">Size it</a> shows the arithmetic.' : ''
-    byId('vnums').textContent = 'Panels make ' + fmt(tot.gen) + ' Wh a day; loads use ' + fmt(tot.load) + ' Wh a day' + (tot.wasted > 0 ? '; ' + fmt(tot.wasted) + ' Wh of sun is wasted because the battery is full' : '') + '. Modelled for day 3 of 3, starting full.'
+    byId('vnums').textContent = 'Panels make ' + fmt(tot.gen) + ' Wh (watt-hours, the unit of energy) a day; loads use ' + fmt(tot.load) + ' Wh a day' + (tot.wasted > 0 ? '; ' + fmt(tot.wasted) + ' Wh of sun is wasted because the battery is full' : '') + '. Modelled for day 3 of 3, starting full.'
     byId('unchecked').textContent = 'Not checked here: wire size, fuses, surge current, panel string voltage, temperature, battery age. A green result is not a design; see Safety.'
     var msgText = L + '. ' + msg
     clearTimeout(annT); annT = setTimeout(function () { if (msgText !== text) { text = msgText; byId('announce').textContent = msgText } }, 700)

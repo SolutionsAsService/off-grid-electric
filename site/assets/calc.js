@@ -69,6 +69,7 @@ OG.boot(function (G) {
     R(el, '<h3>Panels and battery for that budget</h3><div class="fields">' + f('z-psh', 'Peak sun hours', S.sun, ' min="1" max="8" step="0.5"') + sel('z-c', 'Battery type', Object.keys(M.chemistries).map(function (k) { return [k, M.chemistries[k].label] }), S.c) + sel('z-v', 'System voltage', [[12, '12 V'], [24, '24 V'], [48, '48 V']], S.v) + f('z-d', 'Days without sun to cover', M.sizing.autonomyDays, ' min="1" max="7" step="1"') + '</div><div class="tblwrap"><table class="t"><caption>The arithmetic</caption><tbody id="z-body"></tbody></table></div><p class="small">These are rules of thumb with printed margins. They are a starting point for a conversation with an installer, not a design.</p>')
     bind(el, function () {
       var day = C._dayBus || 0, psh = num('z-psh'), ch = M.chemistries[out('z-c').value], v = +out('z-v').value, d = num('z-d')
+      if (!isFinite(psh) || !isFinite(d) || psh <= 0 || d <= 0) { out('z-body').innerHTML = '<tr><td>Enter numbers above zero for sun hours and days.</td></tr>'; return }
       var rec = P.recommend(day, psh, M.derate, M.sizing.margin, d, ch.dod, v), pw = rec.panelW, bw = rec.batteryWh, ahN = rec.batteryAh
       out('z-body').innerHTML = [
         ['Daily need at the battery', nice(day) + ' Wh', 'from the table above'],
