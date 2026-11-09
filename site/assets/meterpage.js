@@ -140,7 +140,7 @@ OG.boot(function (G) {
       ;['black', 'red'].forEach(function (k) {
         if (drag && drag.k === k) return
         jack.red = jacks[st.jack]; var id = st[k], j = jack[k], same = st.red && st.red === st.black
-        if (id && nodeEls[id]) placeTip(k, nodeEls[id].x + (k === 'red' ? 17 : -17), nodeEls[id].y + 17); else placeTip(k, j[0] + (k === 'red' ? 18 : -18), 300)
+        if (id && nodeEls[id]) placeTip(k, nodeEls[id].x + (k === 'red' ? 19 : -19), nodeEls[id].y - 13); else placeTip(k, j[0] + (k === 'red' ? 18 : -18), 300)
       })
     }
     var fuseBox, fuseCross

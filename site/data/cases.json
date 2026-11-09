@@ -21,7 +21,7 @@
     {
       "id": "panel",
       "label": "The panel is not connected to the battery",
-      "why": "In full sun the battery sits at its own voltage (it is not being charged), while the panel reads its open-circuit voltage instead of its working voltage."
+      "why": "In full sun, with the panel connected, the battery is being charged: its terminals read 14 V or more and the panel reads its working voltage. Here the battery sits low and the panel reads its open-circuit voltage, so the panel is not delivering to the battery."
     },
     {
       "id": "neg",

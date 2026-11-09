@@ -78,3 +78,4 @@
   .vm-lcd .vm-mode { display: none; } .vm-lcd .vm-num { font-size: 1.9rem; } .vm-lcd .vm-between { flex: 1 1 auto; font-size: .7rem; }
 }
 .vm-res.ok::before { content: '\2713  '; }
+#vm-svg .vm-lead { opacity: .6; stroke-width: 2.5; } #vm-svg .vm-lead.black { stroke-width: 3; }
