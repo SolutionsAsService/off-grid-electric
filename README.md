@@ -11,7 +11,7 @@ site/                    # the deployable static site (no build step)
   acdc.html              # AC and DC, mains by region, inverters
   solar.html             # panel ratings, peak sun hours, strings and cold-weather voltage
   system.html            # load budget, panels and battery, cable voltage drop
-  multimeters.html       # every meter setting, readings to expect
+  multimeters.html       # a virtual meter lab (probes, readings, case files) and every meter setting
   safety.html            # what this guide cannot do
   assets/power.js        # the model: every number comes from here
   data/                  # assumptions, appliances, wire table, rest voltages, regions
