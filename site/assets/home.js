@@ -115,7 +115,7 @@ OG.boot(function (G) {
     return true
   }
   function flowW(w) { return Math.max(3, Math.min(16, Math.sqrt(Math.max(w, 0)) / 2.2)) }
-  function setFlow(path, wire, w) { if (w < 1) { path.setAttribute('class', path.getAttribute('class').replace(/ ?off/, '') + ' off'); return } path.setAttribute('class', path.getAttribute('class').replace(/ ?off/, '')); var sw = flowW(w); path.setAttribute('stroke-width', sw.toFixed(1)); wire.setAttribute('stroke-width', Math.max(6, sw + 2).toFixed(1)); path.style.animationDuration = Math.max(0.35, 2.4 / (1 + w / 400)).toFixed(2) + 's' }
+  function setFlow(path, wire, w) { if (w < 1) { path.setAttribute('class', path.getAttribute('class').replace(/ ?off/, '') + ' off'); path.setAttribute('stroke-width', 2); wire.setAttribute('stroke-width', 2); return } path.setAttribute('class', path.getAttribute('class').replace(/ ?off/, '')); var sw = flowW(w); path.setAttribute('stroke-width', sw.toFixed(1)); wire.setAttribute('stroke-width', Math.max(6, sw + 2).toFixed(1)); path.style.animationDuration = Math.max(0.35, 2.4 / (1 + w / 400)).toFixed(2) + 's' }
   function drawHero() {
     var i = idx(), small = H.small, soc = sim.soc[i], floor = sim.floor, solar = sim.solar[i], waste = sim.waste[i], used = solar - waste, bat = sim.batBus[i], dem = sim.load[i], served = sim.served[i]
     var ratio = dem > 0 ? served / dem : 1, ac = sim.ac[i] * ratio, dc = sim.dc[i] * ratio, dead = sim.unmet[i] > 0
