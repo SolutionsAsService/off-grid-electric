@@ -127,6 +127,42 @@ const base = { panelW: 400, psh: 4.5, derate: 0.75, rise: 6, set: 18, batV: 12, 
   if (m({ loads: [...base.loads, { w: 500, ac: true, from: 0, to: 24 }] }) > m({}) + 1e-12) bad('simulation: more load should not raise the minimum charge')
 }
 
+// ---------------------------------------------------------------- the helpers the pages share, and the checks behind the verdict
+if (P.roundUp(740, 50) !== 750 || P.roundUp(750, 50) !== 750 || P.roundUp(416, 25) !== 425 || P.roundUp(425, 25) !== 425) bad('model: roundUp')
+if (!close(P.fuseAmps(40), 50)) bad('model: the fuse should be at least 125% of the continuous current')
+if (!close(P.restVolts(12.7, 24), 25.4) || !close(P.restVolts(12.7, 48), 50.8)) bad('model: a 24 V bank rests at twice and a 48 V bank at four times the 12 V figure')
+{ const r = P.recommend(1997, 4.5, 0.75, 1.25, 2, 0.8, 12); if (!close(r.panelW, 1997 / (4.5 * 0.75) * 1.25) || !close(r.batteryWh, 1997 * 2 / 0.8) || !close(r.batteryAh, 1997 * 2 / 0.8 / 12)) bad('model: recommend') }
+{ const a = P.stringStatus(98.6, 100), b = P.stringStatus(89.2, 100), c = P.stringStatus(101, 100); if (a.state !== 'tight' || b.state !== 'ok' || c.state !== 'over') bad('model: a string within 10% of the controller limit is "tight", over the limit is "over"') }
+if (P.wireStatus(2.9, 3) !== 'within' || P.wireStatus(3.1, 3) !== 'over') bad('model: wireStatus')
+{
+  const mk = (o) => ({ panelW: 800, psh: 4.5, derate: 0.75, rise: 6, set: 18, batV: 12, batAh: 200, dod: 0.8, chgEff: 0.95, invEff: 0.9, invStandbyW: 10, loads: [{ w: 40, ac: true, from: 0, to: 24 }], ...o })
+  const run = (o, lim) => { const s = mk(o), sim = P.simulate(s, 3, 5); return { s, sim, c: P.checks(s, sim, { maxC: 1, invRatingW: 2000, watch: 0.8, ...lim }) } }
+  // every flow balances: served = solar used - battery bus power, and never exceeds demand
+  { const { sim } = run({ loads: [{ w: 1500, ac: true, from: 12, to: 12.25 }, { w: 40, ac: true, from: 0, to: 24 }] }); for (let i = 0; i < sim.t.length; i++) { if (Math.abs(sim.served[i] - (sim.solar[i] - sim.waste[i] - sim.batBus[i])) > 1e-6 || sim.served[i] > sim.load[i] + 1e-6 || sim.waste[i] < -1e-9) { bad(`simulation: flows do not balance at step ${i}`); break } } }
+  { const { sim } = run({ panelW: 0, batAh: 20 }); const k = sim.unmet.findIndex((u) => u > 0); if (k < 0 || sim.served[k] >= sim.load[k]) bad('simulation: a blackout step must serve less than the demand') }
+  const dflt = run({}); if (dflt.c.label !== 'OK') bad(`checks: a 40 W fridge on 800 W and 200 Ah should be OK (got ${dflt.c.label})`)
+  if (run({ loads: [] }).c.label !== 'IDLE') bad('checks: no loads is IDLE')
+  if (run({ panelW: 0, batAh: 20, loads: [{ w: 100, ac: false, from: 0, to: 24 }] }).c.label !== 'NO POWER') bad('checks: an empty battery is NO POWER')
+  if (run({ panelW: 800, batAh: 100, dod: 0.8, loads: [{ w: 90, ac: false, from: 18, to: 6 }] }).c.label !== 'TOO DEEP') bad('checks: a battery below its floor is TOO DEEP')
+  { const k = run({ batAh: 200, loads: [{ w: 1500, ac: true, from: 12, to: 12.25 }, { w: 40, ac: true, from: 0, to: 24 }] }, { maxC: 0.25 }); if (k.c.label !== 'OVERLOAD' || k.c.current.state !== 'fail') bad('checks: 1,700 W from a 200 Ah lead-acid battery at 0.25C (50 A) must be an OVERLOAD'); if (!close(k.c.current.limitA, 50) || Math.abs(k.c.current.amps - (1500 / 0.9 + 10 + 40 / 0.9) / 12) > 1e-6) bad('checks: peak battery amps = bus watts / volts, limit = C x Ah') }
+  { const k = run({ loads: [{ w: 2500, ac: true, from: 12, to: 12.25 }] }, {}); if (k.c.inverter.state !== 'fail' || k.c.label !== 'OVERLOAD') bad('checks: 2,500 W of AC on a 2,000 W inverter must be an OVERLOAD') }
+  { const k = run({ loads: [{ w: 1700, ac: true, from: 12, to: 12.25 }] }, {}); if (k.c.inverter.state !== 'watch') bad('checks: 1,700 W on a 2,000 W inverter (85%) should be WATCH') }
+}
+
+// ---------------------------------------------------------------- the reviewed design constants (change them on purpose: update here too)
+{
+  const pin = (what, got, want) => { if (JSON.stringify(got) !== JSON.stringify(want)) bad(`model.json: ${what} is ${JSON.stringify(got)}, the reviewed value is ${JSON.stringify(want)}`) }
+  pin('derate', model.derate, 0.75); pin('sun', [model.sun.rise, model.sun.set, model.sun.psh], [6, 18, 4.5])
+  pin('inverter', [model.inverter.efficiency, model.inverter.standbyW, model.inverter.ratingW], [0.9, 10, 2000])
+  pin('lifepo4', [model.chemistries.lifepo4.dod, model.chemistries.lifepo4.chargeEfficiency, model.chemistries.lifepo4.maxDischargeC], [0.8, 0.95, 1])
+  pin('lead-acid', [model.chemistries.lead.dod, model.chemistries.lead.chargeEfficiency, model.chemistries.lead.maxDischargeC], [0.5, 0.85, 0.25])
+  pin('sizing', [model.sizing.margin, model.sizing.autonomyDays], [1.25, 2]); pin('panel beta', model.panel.betaPerC, -0.003); pin('wire target', model.wire.dropTargetPct, 3); pin('watch fraction', model.checks.watchFraction, 0.8)
+  pin('appliance watts', apps.map((a) => [a.id, a.w, a.ac]), [['fridge', 40, true], ['lights', 24, false], ['router', 12, false], ['laptop', 50, true], ['pump', 60, false], ['tv', 80, true], ['microwave', 1500, true], ['kettle', 1800, true]])
+  const regions = JSON.parse(read('data/regions.json')).regions
+  pin('mains', regions.map((r) => [r.name, r.v, r.hz]), [['United States and Canada', '120 V', '60 Hz'], ['United Kingdom', '230 V', '50 Hz'], ['Most of the European Union', '230 V', '50 Hz'], ['Australia', '230 V', '50 Hz'], ['India', '230 V', '50 Hz'], ['Japan', '100 V', '50 Hz east, 60 Hz west']])
+  pin('rest voltages (12 V, flooded lead-acid)', JSON.parse(read('data/rest.json')).lead.map((r) => [r.soc, r.v12]), [[100, 12.7], [75, 12.4], [50, 12.2], [25, 12], [0, 11.8]])
+}
+
 // ---------------------------------------------------------------- the data
 for (const r of awg) { // the wire table, recomputed from the AWG diameter formula and copper's resistivity at 20 C
   const d = 0.127 * 92 ** ((36 - r.n) / 39), area = Math.PI * d * d / 4, calc = 1.724e-8 * 304.8 / (area * 1e-6)
@@ -182,8 +218,8 @@ if (!/13\.3 to 13\.6 V/.test(text('multimeters.html')) || !/nearly flat/.test(te
   const toLab = (h) => { const [r, g, b] = lin(h); const l = Math.cbrt(0.4122214708 * r + 0.5363325363 * g + 0.0514459929 * b), m = Math.cbrt(0.2119034982 * r + 0.6806995451 * g + 0.1073969566 * b), s = Math.cbrt(0.0883024619 * r + 0.2817188376 * g + 0.6299787005 * b); return [0.2104542553 * l + 0.793617785 * m - 0.0040720468 * s, 1.9779984951 * l - 2.428592205 * m + 0.4505937099 * s, 0.0259040371 * l + 0.7827717662 * m - 0.808675766 * s] }
   const toHex = ([L, A, B]) => { const l = (L + 0.3963377774 * A + 0.2158037573 * B) ** 3, m = (L - 0.1055613458 * A - 0.0638541728 * B) ** 3, s = (L - 0.0894841775 * A - 1.291485548 * B) ** 3; const rgb = [4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s, -1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s, -0.0041960863 * l - 0.7034186147 * m + 1.707614701 * s]; return '#' + rgb.map((v) => { v = Math.min(Math.max(v, 0), 1); v = v <= 0.0031308 ? 12.92 * v : 1.055 * v ** (1 / 2.4) - 0.055; return Math.round(v * 255).toString(16).padStart(2, '0') }).join('') }
   for (const [scheme, t] of [['dark', dark], ['light', light]]) {
-    for (const n of ['bg', 'card', 'ink', 'ink2', 'volt', 'volt-text', 'warm', 'copper', 'sky', 'danger', 'ok', 'on-volt', 'on-accent']) if (!t[n]) bad(`site.css: ${scheme} token --${n} is missing`)
-    if (!['bg', 'card', 'ink', 'ink2', 'volt', 'volt-text', 'warm', 'copper', 'sky', 'danger', 'ok', 'on-volt', 'on-accent'].every((n) => t[n])) continue
+    for (const n of ['bg', 'card', 'ink', 'ink2', 'volt', 'volt-text', 'warm', 'copper', 'sky', 'danger', 'ok', 'on-volt', 'on-accent', 'on-ok', 'on-danger']) if (!t[n]) bad(`site.css: ${scheme} token --${n} is missing`)
+    if (!['bg', 'card', 'ink', 'ink2', 'volt', 'volt-text', 'warm', 'copper', 'sky', 'danger', 'ok', 'on-volt', 'on-accent', 'on-ok', 'on-danger'].every((n) => t[n])) continue
     for (const n of ['ink', 'ink2']) for (const g of ['bg', 'card']) if (cr(t[n], t[g]) < 4.5) bad(`site.css: ${scheme} --${n} on --${g} is ${cr(t[n], t[g]).toFixed(2)}:1 (needs 4.5)`)
     for (const n of ['volt-text', 'copper', 'sky', 'danger', 'ok']) for (const g of ['bg', 'card']) if (cr(t[n], t[g]) < 4.5) bad(`site.css: ${scheme} --${n} on --${g} is ${cr(t[n], t[g]).toFixed(2)}:1 (needs 4.5)`)
     if (cr(t['on-volt'], t.volt) < 7) bad(`site.css: ${scheme} dark text on --volt is ${cr(t['on-volt'], t.volt).toFixed(2)}:1 (needs 7)`)
@@ -196,10 +232,12 @@ if (!/13\.3 to 13\.6 V/.test(text('multimeters.html')) || !/nearly flat/.test(te
     }
   }
   if (!/--accent:\s*color-mix\(in oklab,\s*var\(--sky\)[^;]*var\(--warm\)\)/.test(css)) bad('site.css: --accent is not a mix of --sky and --warm in oklab')
-  // SVG text is read at about half size on a phone: keep it at 20 units or more in its viewBox
-  const hc = read('assets/home.css')
-  const sizes = [...hc.matchAll(/(?:#chart|#schem)[^{]*\{[^}]*font:[^;}]*?(\d+)px/g)].map((m) => +m[1]).concat([...hc.matchAll(/#schem \.(?:nm|wv)\s*\{[^}]*font-size:\s*(\d+)px/g)].map((m) => +m[1]))
-  if (!sizes.length || sizes.some((s) => s < 20)) bad(`home.css: SVG text under 20 units (${sizes.join(', ')})`)
+  // The two landing pictures are drawn in real pixels (viewBox = the container's width, redrawn on resize), so the CSS font sizes are the sizes read.
+  const hc = read('assets/home.css'), hj = read('assets/home.js')
+  const sizes = [...hc.matchAll(/#(?:hero|chart)[^{]*\{[^}]*?font(?:-size)?:\s*(?:[0-9]+ )?(\d+)px/g)].map((m) => +m[1])
+  if (!sizes.length || sizes.some((z) => z < 12)) bad(`home.css: SVG text under 12 px (${sizes.join(', ')})`)
+  if (!/clientWidth/.test(hj) || !/setAttribute\('viewBox', '0 0 ' \+ W/.test(hj)) bad('home.js: the pictures must be drawn in pixels from the container width')
+  for (const [a, b] of [['ok', 'on-ok'], ['danger', 'on-danger']]) for (const [scheme, t] of [['dark', dark], ['light', light]]) if (t[a] && t[b] && cr(t[a], t[b]) < 4.5) bad(`site.css: ${scheme} status tag text --${b} on --${a} is ${cr(t[a], t[b]).toFixed(2)}:1 (needs 4.5)`)
 }
 
 // ---------------------------------------------------------------- the safety notices must stay

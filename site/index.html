@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Will the cabin last the night? An off-grid power simulator | Off-grid electric</title>
-  <meta name="description" content="Flip appliances on and off, set panels, battery and sun hours, and watch a modelled day of solar, load and battery charge. Every number comes from assumptions printed beside it.">
+  <meta name="description" content="Flip appliances on and off and watch one battery fill and drain through a modelled day. Every number comes from assumptions printed beside it.">
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="assets/site.css">
   <link rel="stylesheet" href="assets/home.css">
@@ -15,28 +15,35 @@
     <div class="hd">
       <p class="kicker">Off-grid power, computed instead of promised</p>
       <h1>Flip the breakers. Will the cabin last the night?</h1>
-      <p class="lede">A working model of one day: sun in, appliances out, a battery in between. Change anything and the chart, the circuit and the verdict follow.</p>
+      <p class="lede">A model of one day: sun in, appliances out, one battery between. Flip a breaker below, press Play, and watch the battery fill and drain. It is a learning model, not a design: see <a class="carry" href="safety.html">Safety</a>.</p>
     </div>
 
-    <div class="verdict" id="verdict" role="group" aria-label="Verdict"><p id="vtext"></p><p class="small" id="vnums"></p></div>
+    <div class="stage">
+      <svg id="hero" role="img" aria-labelledby="hero-title"><title id="hero-title">One battery through a modelled day</title></svg>
+      <div class="scrub"><label for="t">Time of day <output id="to">12:00</output></label><input id="t" type="range" min="0" max="24" step="0.25" value="12"><button type="button" class="chip" id="play">Play the day</button><button type="button" class="chip" id="pause" aria-pressed="false">Pause motion</button></div>
+    </div>
+
+    <div class="verdict" id="verdict" role="group" aria-label="Verdict">
+      <p id="vtext"></p>
+      <ul class="checks" id="checks" aria-label="Checks"></ul>
+      <p id="buy" class="buy"></p>
+      <p class="small" id="vnums"></p>
+      <p class="small" id="unchecked"></p>
+    </div>
     <p class="sr" id="announce" role="status" aria-live="polite"></p>
 
     <div class="panelbox">
       <h2 class="mini">Breaker panel</h2>
       <ul class="breakers" id="breakers" aria-label="Appliances"></ul>
-      <div class="knobs" id="knobs">
-        <div class="field"><label for="pw">Solar panels <output id="pwo"></output></label><input id="pw" type="range" min="0" max="2000" step="50"></div>
-        <div class="field"><label for="ah">Battery <output id="aho"></output></label><input id="ah" type="range" min="25" max="800" step="25"></div>
-        <div class="field"><label for="sun">Peak sun hours <output id="suno"></output></label><input id="sun" type="range" min="2" max="7" step="0.5"></div>
-      </div>
+      <details class="edit"><summary>Change an appliance's watts</summary><div class="tblwrap"><table class="t" id="ovtbl"><caption>Watts for each appliance (typical values; read the label of yours)</caption><thead><tr><th scope="col">Appliance</th><th scope="col" class="n">Watts</th></tr></thead><tbody></tbody></table></div></details>
+      <div class="knobs" id="knobs"></div>
       <div class="chips" role="group" aria-label="Battery type and voltage"><button type="button" class="chip" data-c="lifepo4" aria-pressed="true">LiFePO4</button><button type="button" class="chip" data-c="lead" aria-pressed="false">Lead-acid</button><button type="button" class="chip" data-v="12" aria-pressed="true">12 V</button><button type="button" class="chip" data-v="24" aria-pressed="false">24 V</button><button type="button" class="chip" data-v="48" aria-pressed="false">48 V</button></div>
     </div>
 
     <div class="plotbox">
-      <svg id="chart" viewBox="0 0 720 306" role="img" aria-labelledby="chart-title"><title id="chart-title">Modelled day of solar power, load and battery charge</title></svg>
-      <div class="scrub"><label for="t">Time of day <output id="to">12:00</output></label><input id="t" type="range" min="0" max="24" step="0.25" value="12"><button type="button" class="chip" id="play">Play the day</button></div>
-      <svg id="schem" viewBox="0 0 720 168" role="img" aria-labelledby="schem-title"><title id="schem-title">Circuit with the power at the chosen time</title></svg>
-      <p class="small" id="sizing"></p>
+      <p class="now" id="now"></p>
+      <svg id="chart" role="img" aria-labelledby="chart-title"><title id="chart-title">The same day as a chart</title></svg>
+      <details class="edit"><summary>The day as a table</summary><div class="tblwrap"><table class="t" id="daytbl"><caption>Every two hours (modelled)</caption><thead><tr><th scope="col">Time</th><th scope="col" class="n">Solar W</th><th scope="col" class="n">Load W</th><th scope="col" class="n">Battery %</th></tr></thead><tbody></tbody></table></div></details>
     </div>
   </section>
 
@@ -44,6 +51,15 @@
     <div class="notice"><b>Read this first</b>This is a model with typical numbers, not a design for your installation. Real batteries, wires and fuses must be sized and installed to your local electrical code. <a class="carry" href="safety.html">Safety limits</a>.</div>
     <h2>What the model assumes</h2>
     <div class="tblwrap"><table class="t" id="assume"><caption>Every assumption, in one place</caption><thead><tr><th scope="col">Assumption</th><th scope="col" class="n">Value</th><th scope="col">What it means</th></tr></thead><tbody></tbody></table></div>
+    <details class="edit"><summary>Words used here</summary><dl class="gloss">
+      <dt>Wh, kWh</dt><dd>Watt-hours: energy. A 100 W appliance running for 5 hours uses 500 Wh. 1,000 Wh is one kilowatt-hour (kWh).</dd>
+      <dt>Ah</dt><dd>Amp-hours: how much current a battery can supply for how long. Multiply by the battery's voltage to get Wh: 200 Ah at 12 V is 2,400 Wh.</dd>
+      <dt>LiFePO4</dt><dd>Lithium iron phosphate, a common lithium battery chemistry for off-grid use. Lead-acid is the older, heavier alternative.</dd>
+      <dt>Safe floor</dt><dd>The lowest charge the model lets the battery reach before calling it too deep. Draining lead-acid batteries deeply shortens their life.</dd>
+      <dt>Peak sun hours</dt><dd>The day's sunshine expressed as hours of full-strength sun. 4.5 means a day delivers as much energy as 4.5 hours at full strength.</dd>
+      <dt>Derate</dt><dd>The share of a panel's label rating that you really get after heat, dust, wiring and charger losses.</dd>
+      <dt>Inverter</dt><dd>The box that turns the battery's DC into AC for ordinary appliances. It wastes some energy and has a maximum power.</dd>
+    </dl></details>
     <ul class="tiles" id="tiles" aria-label="Learn more"></ul>
   </section>
 </main>

@@ -2,11 +2,12 @@
   "note": "Assumptions for every number on this site. They are typical values, not measurements of your system. Change them on the pages and the results follow.",
   "sun": { "rise": 6, "set": 18, "psh": 4.5, "pshMin": 2, "pshMax": 7 },
   "derate": 0.75,
-  "inverter": { "efficiency": 0.9, "standbyW": 10 },
+  "inverter": { "efficiency": 0.9, "standbyW": 10, "ratingW": 2000, "ratingMin": 500, "ratingMax": 5000 },
+  "checks": { "watchFraction": 0.8 },
   "battery": { "volts": 12, "voltsOptions": [12, 24, 48] },
   "chemistries": {
-    "lifepo4": { "label": "LiFePO4", "dod": 0.8, "chargeEfficiency": 0.95 },
-    "lead": { "label": "Lead-acid", "dod": 0.5, "chargeEfficiency": 0.85 }
+    "lifepo4": { "label": "LiFePO4", "dod": 0.8, "chargeEfficiency": 0.95, "maxDischargeC": 1.0 },
+    "lead": { "label": "Lead-acid", "dod": 0.5, "chargeEfficiency": 0.85, "maxDischargeC": 0.25 }
   },
   "sizing": { "margin": 1.25, "autonomyDays": 2 },
   "panel": { "betaPerC": -0.003, "examples": { "small": { "label": "A typical 100 W panel for 12 V systems", "voc": 22.5, "vmp": 18.4, "imp": 5.43, "isc": 5.8 }, "large": { "label": "A typical 400 W panel", "voc": 44.6, "vmp": 37.2, "imp": 10.75, "isc": 11.4 } } },

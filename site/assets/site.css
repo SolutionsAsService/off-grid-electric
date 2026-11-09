@@ -3,7 +3,7 @@
 @property --sun { syntax: '<number>'; inherits: true; initial-value: 0.35; }
 :root {
   --bg: #090b14; --card: #12151f; --ink: #f4f1e6; --ink2: #b7b9c6; --rule: #2c3144;
-  --volt: #ffd21f; --volt-text: #ffd21f; --warm: #ffd21f; --copper: #f09a5a; --sky: #7fa3ff; --danger: #ff6b5a; --ok: #62d98c; --on-volt: #14161b; --on-accent: #14161b; --focus: #ffffff;
+  --volt: #ffd21f; --volt-text: #ffd21f; --warm: #ffd21f; --copper: #f09a5a; --sky: #7fa3ff; --danger: #ff6b5a; --ok: #62d98c; --on-volt: #14161b; --on-accent: #14161b; --on-ok: #08120c; --on-danger: #1b0805; --focus: #ffffff;
   --sun: 0.35;
   --accent: color-mix(in oklab, var(--sky) calc((1 - var(--sun)) * 100%), var(--warm));
   --mono: ui-monospace, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
@@ -12,7 +12,7 @@
   color-scheme: dark; transition: --sun .5s ease;
 }
 @media (prefers-color-scheme: light) {
-  :root { --bg: #f3efe4; --card: #fbf9f3; --ink: #15161a; --ink2: #494c55; --rule: #cfc9b8; --volt: #ffc61a; --volt-text: #7a4f00; --warm: #9a4a18; --copper: #9a4a18; --sky: #2748b8; --danger: #b3261e; --ok: #11713b; --on-accent: #ffffff; --focus: #15161a; color-scheme: light; }
+  :root { --bg: #f3efe4; --card: #fbf9f3; --ink: #15161a; --ink2: #494c55; --rule: #cfc9b8; --volt: #ffc61a; --volt-text: #7a4f00; --warm: #9a4a18; --copper: #9a4a18; --sky: #2748b8; --danger: #b3261e; --ok: #11713b; --on-accent: #ffffff; --on-ok: #ffffff; --on-danger: #ffffff; --focus: #15161a; color-scheme: light; }
 }
 * { box-sizing: border-box; }
 html { -webkit-text-size-adjust: 100%; scroll-padding-top: 72px; }
@@ -85,3 +85,5 @@ footer.site p { margin: 4px 0; max-width: 90ch; }
 @media (prefers-reduced-motion: reduce) { :root { transition: none; } }
 @media (forced-colors: active) { .btn, .chip, .card, .calc { border: 3px solid CanvasText; } }
 @media print { header.site nav, .calc { display: none; } body { background: #fff; color: #000; } }
+footer.site a { display: inline-block; padding: 10px 4px; margin: -6px 0; }
+.notice a { display: inline-block; padding: 10px 2px; margin: -10px 0; }

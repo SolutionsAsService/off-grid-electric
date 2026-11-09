@@ -3,7 +3,7 @@
 OG.boot(function (G) {
   'use strict'
   var P = G.P, M = G.model, A = G.appliances, S = G.state, esc = G.esc, fmt = G.fmt
-  function num(id) { var v = parseFloat(document.getElementById(id).value); return isFinite(v) ? v : NaN }
+  function num(id, allowNegative) { var v = parseFloat(document.getElementById(id).value); return isFinite(v) && (allowNegative || v >= 0) ? v : NaN }
   function f(id, label, val, attrs) { return '<div class="field"><label for="' + id + '">' + esc(label) + '</label><input id="' + id + '" type="number" inputmode="decimal" value="' + val + '"' + (attrs || '') + '></div>' }
   function sel(id, label, opts, val) { return '<div class="field"><label for="' + id + '">' + esc(label) + '</label><select id="' + id + '">' + opts.map(function (o) { return '<option value="' + esc(o[0]) + '"' + (String(o[0]) === String(val) ? ' selected' : '') + '>' + esc(o[1]) + '</option>' }).join('') + '</select></div>' }
   function bind(root, fn) { root.addEventListener('input', fn); root.addEventListener('change', fn); fn() }
@@ -46,11 +46,11 @@ OG.boot(function (G) {
     var ex = M.panel.examples
     R(el, '<h3>Build a string and check the cold-morning voltage</h3><div class="fields">' + sel('s-p', 'Panel', Object.keys(ex).map(function (k) { return [k, ex[k].label] }), 'large') + f('s-n', 'Panels in series', 2, ' min="1" max="20" step="1"') + f('s-m', 'Strings in parallel', 1, ' min="1" max="10" step="1"') + f('s-t', 'Coldest expected temperature, C', -10, ' step="1"') + f('s-c', 'Charge controller maximum input, V', 100, ' min="1" step="1"') + '</div><div class="tblwrap"><table class="t"><caption>The string</caption><thead><tr><th scope="col">Quantity</th><th scope="col" class="n">Value</th><th scope="col">Meaning</th></tr></thead><tbody id="s-body"></tbody></table></div><p class="result" id="s-out" role="status"></p><p class="small">Cold Voc = Voc x (1 + b x (T - 25)), with b = ' + M.panel.betaPerC + ' per degree C, a typical value for crystalline silicon. Use the figures on your own panel\'s datasheet.</p>')
     bind(el, function () {
-      var p = ex[out('s-p').value], n = Math.max(1, Math.round(num('s-n'))), m = Math.max(1, Math.round(num('s-m'))), T = num('s-t'), cmax = num('s-c')
+      var p = ex[out('s-p').value], n = Math.max(1, Math.round(num('s-n'))), m = Math.max(1, Math.round(num('s-m'))), T = num('s-t', true), cmax = num('s-c')
       var s = P.string(p, n, m), cold = P.vocCold(s.voc, T, M.panel.betaPerC)
-      out('s-body').innerHTML = [['Voc, open circuit at 25 C', s.voc, 'V', 'The voltage across the string with nothing connected. It is present whenever there is light.'], ['Vmp, at maximum power', s.vmp, 'V', 'The voltage while the controller is drawing full power.'], ['Imp', s.imp, 'A', 'Current at maximum power (strings in parallel add).'], ['Isc, short circuit', s.isc, 'A', 'The most the string can push into a fault.'], ['Power at the label rating', s.w, 'W', 'Vmp x Imp x panels, at standard test conditions.'], ['Voc at the coldest temperature', cold, 'V', 'Voltage rises as panels get colder.']].map(function (r) { return '<tr><th scope="row">' + r[0] + '</th><td class="n">' + nice(r[1], 1) + ' ' + r[2] + '</td><td>' + r[3] + '</td></tr>' }).join('')
-      var ok = cold <= cmax
-      out('s-out').innerHTML = (ok ? '<b>Within limit</b> ' : '<b>Over the limit</b> ') + 'The cold-morning Voc is ' + nice(cold, 1) + ' V against a controller maximum of ' + nice(cmax, 0) + ' V' + (ok ? ' (' + nice(cmax - cold, 1) + ' V of headroom).' : '. This string could destroy the controller on a cold, clear morning. Fewer panels in series.')
+      out('s-body').innerHTML = [['Voc at 25 C, open circuit', s.voc, 'V', 'The voltage across the string with nothing connected, at the standard test temperature. It is present whenever there is light, and it rises when the panels are colder.'], ['Vmp, at maximum power', s.vmp, 'V', 'The voltage while the controller is drawing full power.'], ['Imp', s.imp, 'A', 'Current at maximum power (strings in parallel add).'], ['Isc, short circuit', s.isc, 'A', 'The most the string can push into a fault.'], ['Power at the label rating', s.w, 'W', 'Vmp x Imp x panels, at standard test conditions.'], ['Voc at the coldest temperature', cold, 'V', 'Voltage rises as panels get colder.']].map(function (r) { return '<tr><th scope="row">' + r[0] + '</th><td class="n">' + nice(r[1], 1) + ' ' + r[2] + '</td><td>' + r[3] + '</td></tr>' }).join('')
+      var st = P.stringStatus(cold, cmax)
+      out('s-out').innerHTML = (st.state === 'ok' ? '<b>Within limit</b> ' : st.state === 'tight' ? '<b>Too close</b> ' : '<b>Over the limit</b> ') + 'The cold-morning Voc is ' + nice(cold, 1) + ' V against a controller maximum of ' + nice(cmax, 0) + ' V' + (st.state === 'over' ? '. This string could destroy the controller on a cold, clear morning. Use fewer panels in series.' : ' (' + nice(st.headroomV, 1) + ' V, ' + nice(st.headroomPct, 1) + '% of headroom).' + (st.state === 'tight' ? ' That is under 10%: a colder night than you planned, or a panel that reads high, would put it over. Leave a margin, and check your panel datasheet\'s own temperature coefficient.' : ' Real panels vary and cold snaps happen; keep a margin.'))
     })
   }
 
@@ -69,26 +69,33 @@ OG.boot(function (G) {
     R(el, '<h3>Panels and battery for that budget</h3><div class="fields">' + f('z-psh', 'Peak sun hours', S.sun, ' min="1" max="8" step="0.5"') + sel('z-c', 'Battery type', Object.keys(M.chemistries).map(function (k) { return [k, M.chemistries[k].label] }), S.c) + sel('z-v', 'System voltage', [[12, '12 V'], [24, '24 V'], [48, '48 V']], S.v) + f('z-d', 'Days without sun to cover', M.sizing.autonomyDays, ' min="1" max="7" step="1"') + '</div><div class="tblwrap"><table class="t"><caption>The arithmetic</caption><tbody id="z-body"></tbody></table></div><p class="small">These are rules of thumb with printed margins. They are a starting point for a conversation with an installer, not a design.</p>')
     bind(el, function () {
       var day = C._dayBus || 0, psh = num('z-psh'), ch = M.chemistries[out('z-c').value], v = +out('z-v').value, d = num('z-d')
-      var pw = P.panelWatts(day, psh, M.derate, M.sizing.margin), bw = P.batteryWh(day, d, ch.dod), ahN = P.batteryAh(bw, v)
+      var rec = P.recommend(day, psh, M.derate, M.sizing.margin, d, ch.dod, v), pw = rec.panelW, bw = rec.batteryWh, ahN = rec.batteryAh
       out('z-body').innerHTML = [
         ['Daily need at the battery', nice(day) + ' Wh', 'from the table above'],
-        ['Panel watts', nice(pw) + ' W', nice(day) + ' / (' + psh + ' h x ' + M.derate + ') x ' + M.sizing.margin + ' margin'],
+        ['Panel watts', nice(pw) + (isFinite(pw) ? ' W (about ' + fmt(P.roundUp(pw, 50)) + ' W in whole panels)' : ''), nice(day) + ' / (' + psh + ' h x ' + M.derate + ') x ' + M.sizing.margin + ' margin'],
         ['Battery energy', nice(bw) + ' Wh', nice(day) + ' x ' + d + ' days / ' + ch.dod + ' usable'],
-        ['Battery capacity', nice(ahN) + ' Ah at ' + v + ' V', nice(bw) + ' Wh / ' + v + ' V'],
+        ['Battery capacity', nice(ahN) + (isFinite(ahN) ? ' Ah at ' + v + ' V (about ' + fmt(P.roundUp(ahN, 25)) + ' Ah)' : ''), nice(bw) + ' Wh / ' + v + ' V'],
         ['Charge current at noon, at most', nice(pw / v) + ' A', 'panel watts / battery volts, before losses']
       ].map(function (r) { return '<tr><th scope="row">' + r[0] + '</th><td class="n">' + r[1] + '</td><td>' + esc(r[2]) + '</td></tr>' }).join('')
     })
   }
 
-  // ---- wire voltage drop
+  // ---- wire voltage drop (AWG and metric sizes)
+  function sizes() {
+    var a = G.awg.map(function (r) { var d = 0.127 * Math.pow(92, (36 - r.n) / 39), area = Math.PI * d * d / 4; return { key: 'awg' + r.awg, label: 'AWG ' + r.awg + ' (' + area.toFixed(1) + ' mm2)', ohmsPerM: P.ohmsPerMetreFromPerKft(r.ohmsPerKft) } })
+    var m = G.metric.map(function (mm) { return { key: 'mm' + mm, label: mm + ' mm2', ohmsPerM: 0.01724 / mm } })
+    return a.concat(m).sort(function (x, y) { return y.ohmsPerM - x.ohmsPerM })
+  }
   C.wire = function (el) {
-    R(el, '<h3>Is this wire thick enough?</h3><div class="fields">' + f('w-a', 'Current, amps', 40, ' min="0" step="any"') + f('w-l', 'One-way length, metres', 5, ' min="0" step="any"') + f('w-v', 'System voltage', S.v, ' min="1" step="1"') + sel('w-g', 'Copper wire size (AWG)', G.awg.map(function (r) { return [r.awg, 'AWG ' + r.awg] }), '6') + '</div><div class="tblwrap"><table class="t"><caption>Voltage drop for every size</caption><thead><tr><th scope="col">Size</th><th scope="col" class="n">Drop, volts</th><th scope="col" class="n">Drop, % of system</th><th scope="col">Against ' + M.wire.dropTargetPct + '%</th></tr></thead><tbody id="w-body"></tbody></table></div><p class="result" id="w-out" role="status"></p><p class="small">Drop = 2 x length x current x resistance per metre (both conductors carry the current). Resistance is for copper at 20 C; a hot wire is a little higher. Staying under about ' + M.wire.dropTargetPct + '% is common guidance, not a rule. <strong>This is voltage drop only.</strong> How much current a wire can carry safely, and what fuse protects it, depends on insulation, temperature, bundling and your local code; ask an electrician.</p>')
+    var all = sizes()
+    R(el, '<h3>Is this wire thick enough?</h3><div class="fields">' + f('w-a', 'Current, amps', 40, ' min="0" step="any"') + f('w-l', 'One-way length', 5, ' min="0" step="any"') + sel('w-u', 'Length in', [['m', 'metres'], ['ft', 'feet']], 'm') + f('w-v', 'System voltage', S.v, ' min="1" step="1"') + sel('w-g', 'Copper wire size', all.map(function (z) { return [z.key, z.label] }), 'mm16') + '</div><div class="tblwrap"><table class="t"><caption>Voltage drop for every size</caption><thead><tr><th scope="col">Size</th><th scope="col" class="n">Drop, volts</th><th scope="col" class="n">Drop, % of system</th><th scope="col">Against ' + M.wire.dropTargetPct + '%</th></tr></thead><tbody id="w-body"></tbody></table></div><p class="result" id="w-out" role="status"></p><p class="small">Drop = 2 x length x current x resistance per metre (both conductors carry the current). Resistance is for copper at 20 C; a hot wire is a little higher. Staying under about ' + M.wire.dropTargetPct + '% is common guidance, not a rule. <strong>This is voltage drop only.</strong> How much current a wire can carry safely, and what fuse protects it, depends on insulation, temperature, bundling and your local code; ask an electrician.</p>')
     bind(el, function () {
-      var a = num('w-a'), l = num('w-l'), v = num('w-v'), pick = out('w-g').value
-      var rows = G.awg.map(function (r) { var drop = P.voltageDrop(a, l, P.ohmsPerMetreFromPerKft(r.ohmsPerKft)), pct = 100 * drop / v; return { awg: r.awg, drop: drop, pct: pct, ok: pct <= M.wire.dropTargetPct } })
-      out('w-body').innerHTML = rows.map(function (r) { return '<tr' + (r.awg === pick ? ' aria-current="true"' : '') + '><th scope="row">AWG ' + r.awg + (r.awg === pick ? ' (chosen)' : '') + '</th><td class="n">' + nice(r.drop, 2) + '</td><td class="n">' + nice(r.pct, 1) + '%</td><td>' + (r.ok ? 'within' : 'over') + '</td></tr>' }).join('')
-      var c = rows.filter(function (r) { return r.awg === pick })[0], first = rows.filter(function (r) { return r.ok })[0]
-      out('w-out').innerHTML = '<b>' + nice(c.pct, 1) + '%</b> drop with AWG ' + pick + ' (' + nice(c.drop, 2) + ' V of ' + nice(v, 0) + ' V). ' + (c.ok ? 'That is within ' + M.wire.dropTargetPct + '%.' : first ? 'The thinnest size within ' + M.wire.dropTargetPct + '% is AWG ' + first.awg + '.' : 'No size in this table is within ' + M.wire.dropTargetPct + '% at this current and length: raise the system voltage or shorten the run.') + ' Fuse the positive conductor near the battery at no less than ' + nice(a * 1.25, 0) + ' A (125% of this current) and no more than the wire is rated for.'
+      var a = num('w-a'), l = num('w-l') * (out('w-u').value === 'ft' ? 0.3048 : 1), v = num('w-v'), pick = out('w-g').value
+      var rows = all.map(function (z) { var drop = P.voltageDrop(a, l, z.ohmsPerM), p = 100 * drop / v; return { key: z.key, label: z.label, drop: drop, pct: p, ok: P.wireStatus(p, M.wire.dropTargetPct) === 'within' } })
+      out('w-body').innerHTML = rows.map(function (r) { return '<tr' + (r.key === pick ? ' aria-current="true"' : '') + '><th scope="row">' + r.label + (r.key === pick ? ' (chosen)' : '') + '</th><td class="n">' + nice(r.drop, 2) + '</td><td class="n">' + nice(r.pct, 1) + '%</td><td>' + (r.ok ? 'within' : 'over') + '</td></tr>' }).join('')
+      var c = rows.filter(function (r) { return r.key === pick })[0], first = rows.filter(function (r) { return r.ok }).pop()
+      var thin = rows.filter(function (r) { return r.ok })
+      out('w-out').innerHTML = isFinite(a) && isFinite(l) && isFinite(v) && v > 0 ? '<b>' + nice(c.pct, 1) + '%</b> drop with ' + c.label + ' (' + nice(c.drop, 2) + ' V of ' + nice(v, 0) + ' V). ' + (c.ok ? 'That is within ' + M.wire.dropTargetPct + '%.' : thin.length ? 'The thinnest size in this table within ' + M.wire.dropTargetPct + '% is ' + thin[0].label + '.' : 'No size in this table is within ' + M.wire.dropTargetPct + '% at this current and length: raise the system voltage or shorten the run.') + (a > 60 ? ' At ' + nice(a, 0) + ' A, wire heating limits you as well as voltage drop, and a fault can melt cable: this needs a professional.' : '') + ' A fuse on the positive conductor near the battery should be at least ' + nice(P.fuseAmps(a), 0) + ' A (125% of this current) and no more than the wire is rated for; this tool does not check the wire\'s rating.' : 'Enter numbers above zero.'
     })
   }
 
@@ -96,7 +103,7 @@ OG.boot(function (G) {
   function table(el, caption, head, rows) { R(el, '<div class="tblwrap"><table class="t"><caption>' + esc(caption) + '</caption><thead><tr>' + head.map(function (h, i) { return '<th scope="col"' + (i && /^[0-9]/.test(rows[0][i]) ? ' class="n"' : '') + '>' + esc(h) + '</th>' }).join('') + '</tr></thead><tbody>' + rows.map(function (r) { return '<tr><th scope="row">' + esc(r[0]) + '</th>' + r.slice(1).map(function (c, i) { return '<td' + (/^[0-9]/.test(c) ? ' class="n"' : '') + '>' + esc(c) + '</td>' }).join('') + '</tr>' }).join('') + '</tbody></table></div>') }
   C.regions = function (el, d) { table(el, 'Mains supply by region (nominal)', ['Region', 'Voltage', 'Frequency', 'Note'], d.regions.map(function (r) { return [r.name, r.v, r.hz, r.note] })) }
   C.rest = function (el, d) {
-    var rows = d.lead.map(function (r) { return [r.soc + '%', (r.v12).toFixed(1) + ' V', (r.v12 * 2).toFixed(1) + ' V', (r.v12 * 4).toFixed(1) + ' V'] })
+    var rows = d.lead.map(function (r) { return [r.soc + '%', P.restVolts(r.v12, 12).toFixed(1) + ' V', P.restVolts(r.v12, 24).toFixed(1) + ' V', P.restVolts(r.v12, 48).toFixed(1) + ' V'] })
     table(el, 'Flooded lead-acid, resting for several hours (approximate)', ['State of charge', '12 V battery', '24 V bank', '48 V bank'], rows)
   }
 
