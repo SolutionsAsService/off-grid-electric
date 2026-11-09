@@ -188,7 +188,7 @@ OG.boot(function (G) {
       document.querySelectorAll('[data-dial]').forEach(function (b) { var on = b.getAttribute('data-dial') === st.dial; b.setAttribute('aria-checked', String(on)); b.setAttribute('tabindex', on ? '0' : '-1') })
       document.querySelectorAll('[data-jack]').forEach(function (b) { var on = b.getAttribute('data-jack') === st.jack; b.setAttribute('aria-checked', String(on)); b.setAttribute('tabindex', on ? '0' : '-1') })
       $('vm-rel').setAttribute('aria-pressed', String(st.rel)); $('vm-iso').setAttribute('aria-pressed', String(st.isolate)); $('vm-iso').textContent = 'Battery isolator: ' + (st.isolate ? 'OPEN (circuit dead)' : 'closed'); $('vm-pv').setAttribute('aria-pressed', String(st.panelDisc)); $('vm-pv').textContent = 'Panel disconnect: ' + (st.panelDisc ? 'OPEN' : 'closed')
-      var cx = ctxFor(curCase()), sim = cx.sim, i = idx(); $('vm-status').textContent = LABM ? G.clock(st.t) + ': the sun is ' + (sim.solar[i] > 1 ? 'up' : 'down') + '. Work out what is wrong from the meter.' : G.clock(st.t) + ': sun ' + G.fmt(sim.solar[i]) + ' W, loads ' + G.fmt(sim.served[i]) + ' W, battery ' + Math.round(sim.soc[i] * 100) + '%' + (w.isolate ? ', circuit isolated' : w.iBat > 0.05 ? ', charging at ' + w.iBat.toFixed(1) + ' A' : w.iBat < -0.05 ? ', supplying ' + Math.abs(w.iBat).toFixed(1) + ' A' : ', no net battery current') + (w.acOn ? '' : ', inverter off')
+      var cx = ctxFor(curCase()), sim = cx.sim, i = idx(); $('vm-status').textContent = LABM && st.solved ? 'Case solved. The fault was: ' + CF.diagnoses.filter(function (d) { return d.id === curCase().diag })[0].label + '. The circuit now shows its real state.' : LABM ? G.clock(st.t) + ': the sun is ' + (sim.solar[i] > 1 ? 'up' : 'down') + '. Work out what is wrong from the meter.' : G.clock(st.t) + ': sun ' + G.fmt(sim.solar[i]) + ' W, loads ' + G.fmt(sim.served[i]) + ' W, battery ' + Math.round(sim.soc[i] * 100) + '%' + (w.isolate ? ', circuit isolated' : w.iBat > 0.05 ? ', charging at ' + w.iBat.toFixed(1) + ' A' : w.iBat < -0.05 ? ', supplying ' + Math.abs(w.iBat).toFixed(1) + ' A' : ', no net battery current') + (w.acOn ? '' : ', inverter off')
       if (!LABM) MISSIONS.forEach(function (m) { if (!st.done[m.id] && m.ok(setup, r)) st.done[m.id] = 1 })
       st.last = r
       $('vm-key').textContent = LABM && !st.solved ? 'Case file: the figures under the points and the live-or-dead styling are withheld on purpose. The meter is your only evidence.' : 'Figures under the points: volts to the battery negative post. Dashed grey: no power. Solid: live. Tip R: red probe. Tip B: black probe.'; $('vm-t').disabled = LABM && !!curCase(); $('vm-miss').hidden = LABM; $('vm-case').hidden = !LABM; $('vm-scf').hidden = LABM
@@ -222,7 +222,7 @@ OG.boot(function (G) {
     function paintCase() {
       var ae = document.activeElement, fid = ae && ae.id && ae.closest && ae.closest('#vm-case') ? ae.id : '', fcase = ae && ae.getAttribute && ae.getAttribute('data-case')
       drawCase()
-      var t = fid ? $(fid) : fcase ? document.querySelector('#vm-case [data-case="' + fcase + '"]') : null; if (t && !t.disabled && t.focus) t.focus()
+      var t = fid ? $(fid) : fcase ? document.querySelector('#vm-case [data-case="' + fcase + '"]') : null; if (t && t.disabled) t = $('vm-res'); if (t && t.focus) t.focus()
     }
     function drawCase() {
       var c = curCase(), box = $('vm-case')
@@ -231,7 +231,7 @@ OG.boot(function (G) {
       box.innerHTML = '<h3 class="vm-h">Case ' + c.id + ' of ' + CF.cases.length + ': ' + esc(c.title) + '</h3><p>' + esc(c.symptom) + '</p>' +
         '<div class="vm-dx"><div class="field"><label for="vm-dxs">Your diagnosis</label><select id="vm-dxs"' + (done ? ' disabled' : '') + '><option value="">Choose a fault...</option>' + CF.diagnoses.slice().sort(function (a, b) { return a.label < b.label ? -1 : 1 }).map(function (d) { return '<option value="' + d.id + '"' + (st.dx === d.id ? ' selected' : '') + '>' + esc(d.label) + '</option>' }).join('') + '</select></div>' +
         '<div class="chips"><button type="button" class="chip" id="vm-dxgo"' + (done ? ' disabled' : '') + '>Submit diagnosis</button><button type="button" class="chip" id="vm-hint"' + (done || (st.hint || 0) >= c.evidence.length ? ' disabled' : '') + '>' + ((st.hint || 0) >= c.evidence.length ? 'All hints shown' : 'Hint (' + (st.hint || 0) + ' of ' + c.evidence.length + ' shown)') + '</button><button type="button" class="chip" data-case="0">Back to the case list</button>' + (done && c.id < CF.cases.length ? '<button type="button" class="chip" data-case="' + (c.id + 1) + '">Next case</button>' : '') + '</div></div>' +
-        '<p class="vm-res' + (done ? ' ok' : st.tries ? ' bad' : '') + '" id="vm-res" role="status">' + esc(st.result || '') + '</p>' +
+        '<p class="vm-res' + (done ? ' ok' : st.tries ? ' bad' : '') + '" id="vm-res" role="status" tabindex="-1">' + esc(st.result || '') + '</p>' +
         (st.hint ? '<ul class="vm-hints">' + c.evidence.slice(0, st.hint).map(function (e) { return '<li>Try: ' + esc(e.what) + '.</li>' }).join('') + '</ul>' : '')
     }
     function submitDx() {

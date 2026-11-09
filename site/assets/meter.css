@@ -77,3 +77,4 @@
   .vm-lcd { position: sticky; top: 0; z-index: 8; min-height: 0; padding: 4px 12px; gap: 0 8px; }
   .vm-lcd .vm-mode { display: none; } .vm-lcd .vm-num { font-size: 1.9rem; } .vm-lcd .vm-between { flex: 1 1 auto; font-size: .7rem; }
 }
+.vm-res.ok::before { content: '\2713  '; }
