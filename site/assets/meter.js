@@ -16,7 +16,7 @@
     { id: 'el1', label: 'Spare heating element, end 1', grp: 'Spare element' }, { id: 'el2', label: 'Spare heating element, end 2', grp: 'Spare element' }
   ]
   M.DIALS = ['off', 'dcv', 'acv', 'ohm', 'cont', 'amp']
-  M.SCENARIOS = { normal: 'Everything works', blownFuse: 'The inverter is dead', corroded: 'Lights dim when the pump runs', panelOpen: 'The batteries are not charging' }
+  M.SCENARIOS = { normal: 'Everything works', blownFuse: 'The inverter is dead', corroded: 'Lights dim when the pump runs', panelOpen: 'The batteries are not charging', openNeg: 'The outlet is dead but the fuse is fine', badCell: 'The inverter trips under a big load' }
 
   function interp(curve, pct) {          // curve: [[pct, volts], ...] from high to low
     pct = Math.max(0, Math.min(100, pct))
@@ -33,32 +33,44 @@
      in: { B (battery.json), chem, sysV, ah, soc, batW (battery bus power, + charging), servedW, solarUsedW, solarW, solarPeakW, acOn, region: {v,hz},
            panel: {voc, vmp}, cableOhm, isolate, panelDisc, scenario } */
   M.world = function (i) {
-    var B = i.B, sc = B.scene, w = { nodes: {}, live: {}, I: 0, iLoad: 0, charging: false, regulating: false, acV: 0, acHz: 0, acOn: false }
-    var ocv = M.ocv(B, i.chem, i.soc, i.sysV), rint = M.rint(B, i.chem, i.ah, i.sysV)
+    var B = i.B, sc = B.scene, w = { nodes: {}, live: {}, I: 0, iLoad: 0, iLoadClosed: 0, charging: false, regulating: false, acV: 0, acHz: 0, acOn: false }
+    var n = i.sysV / 12, bad = i.scenario === 'badCell', openNeg = i.scenario === 'openNeg'
+    var ocv = M.ocv(B, i.chem, i.soc, i.sysV) - (bad ? sc.badCellDropV * n : 0), rint = M.rint(B, i.chem, i.ah, i.sysV) * (bad ? sc.badCellRintX : 1)
     var cut = i.isolate || i.scenario === 'blownFuse'                       // the load side is dead
-    var iLoad = (cut || i.acOn === false) ? 0 : Math.max(0, i.servedW) / Math.max(ocv, 1)          // amps the loads draw through the fuse and the cable
     var panelOn = !i.isolate && !i.panelDisc && i.scenario !== 'panelOpen' && i.solarW > 1
-    var iBat = i.isolate ? 0 : i.batW / Math.max(ocv, 1)                      // net current at the battery posts: + charging, - discharging
+    var served = Math.max(0, i.servedW)
+    var batW = panelOn ? i.batW : (i.isolate ? 0 : Math.min(i.batW, 0) - (i.batW > 0 ? served : 0))   // with no panel connected the battery carries every load
+    var iBat = i.isolate ? 0 : batW / Math.max(ocv, 1)                        // net current at the battery posts: + charging, - discharging
+    var iClosed = (cut || i.acOn === false) ? 0 : served / Math.max(ocv, 1)   // what the loads would draw if the circuit were complete
+    var iLoad = openNeg ? 0 : iClosed                                         // amps through the fuse and the cable
     if (i.scenario === 'blownFuse') iBat = Math.max(0, iBat)                   // the loads are cut off; only the panel can still charge
+    if (openNeg) iBat = Math.max(0, iBat)
     var cv = B.charge12[i.chem], vt
     var charging = panelOn && iBat > 0.05, regulating = panelOn && !charging && (i.wasteW || 0) > 1   // regulating: the battery is full and the controller holds the voltage
     if (charging || regulating) vt = (i.soc < B.absorbUntil && charging ? cv.absorb : cv.float) * i.sysV / 12
-    else vt = ocv + Math.min(0, iBat) * rint                                  // discharging lowers the terminal voltage
+    else vt = ocv + Math.min(0, iBat) * rint + (openNeg ? 0 : 0)             // discharging lowers the terminal voltage
+    var lowCut = bad && vt < sc.lowCutV * n                                   // the inverter shuts down on low battery voltage
+    if (lowCut) { iLoad = 0; iClosed = 0; vt = ocv }
     var rCorr = i.scenario === 'corroded' ? sc.corrodedOhm : 0.0005
     var vLug = vt - iLoad * rCorr
     var vFuseOut = i.scenario === 'blownFuse' ? 0 : vLug - iLoad * sc.fuseOhm
     var vCabInv = i.scenario === 'blownFuse' ? 0 : vFuseOut - iLoad * i.cableOhm
-    var f = i.solarPeakW > 0 ? Math.min(1, i.solarW / i.solarPeakW) : 0, n = i.sysV / 12, pv = 0
+    var f = i.solarPeakW > 0 ? Math.min(1, i.solarW / i.solarPeakW) : 0, pv = 0
     if (i.solarW > 1 && !i.isolate) pv = (charging ? n * i.panel.vmp * (0.92 + 0.08 * f) : n * i.panel.voc * (0.85 + 0.15 * f))   // disconnected, or held off by the controller: near open circuit
-    var acOn = i.acOn !== false && !cut
-    w.nodes = { 'bat+': vt, 'bat-': 0, lug: vLug, fuse_in: vLug, fuse_out: vFuseOut, cab_bat: vFuseOut, cab_inv: vCabInv, gap1: 0, gap2: 0, 'pv+': pv, 'pv-': 0, el1: 0, el2: 0 }
+    var acOn = i.acOn !== false && !cut && !openNeg && !lowCut
+    w.nodes = { 'bat+': vt, 'bat-': 0, lug: vLug, fuse_in: vLug, fuse_out: vFuseOut, cab_bat: vFuseOut, cab_inv: vCabInv, gap1: 0, gap2: openNeg ? vCabInv : 0, 'pv+': pv, 'pv-': 0, el1: 0, el2: 0 }
     w.ac = { ac_l: acOn ? i.region.v : 0, ac_n: 0 }; w.acV = acOn ? i.region.v : 0; w.acHz = i.region.hz; w.acOn = acOn
-    w.I = iLoad; w.iLoad = iLoad; w.iBat = iBat; w.charging = charging; w.regulating = regulating
-    w.cableOhm = i.cableOhm; w.rFuse = sc.fuseOhm; w.fuseBlown = i.scenario === 'blownFuse'
+    w.I = iLoad; w.iLoad = iLoad; w.iLoadClosed = iClosed; w.iBat = iBat; w.charging = charging; w.regulating = regulating; w.lowCut = lowCut
+    w.cableOhm = i.cableOhm; w.rFuse = sc.fuseOhm; w.fuseBlown = i.scenario === 'blownFuse'; w.openNeg = openNeg
     w.elementOhm = sc.elementOhm; w.linkOhm = sc.linkOhm
-    w.live = { 'bat+': 1, 'bat-': 1, lug: 1, fuse_in: 1, fuse_out: !cut, cab_bat: !cut, cab_inv: !cut, gap1: !cut, gap2: !cut, 'pv+': pv > 0, 'pv-': pv > 0, ac_l: acOn, ac_n: acOn, el1: 0, el2: 0 }
+    w.live = { 'bat+': 1, 'bat-': 1, lug: 1, fuse_in: 1, fuse_out: !cut, cab_bat: !cut, cab_inv: !cut, gap1: !cut, gap2: !cut && !lowCut, 'pv+': pv > 0, 'pv-': pv > 0, ac_l: acOn, ac_n: acOn, el1: 0, el2: 0 }
     w.isolate = !!i.isolate; w.cut = cut
     return w
+  }
+  /* inputs() builds world()'s input from a simulation at step index k. cfg = { B, chem, sysV, ah, peak, region, panel, cableOhm, scenario, isolate, panelDisc } */
+  M.inputs = function (sim, k, cfg) {
+    return { B: cfg.B, chem: cfg.chem, sysV: cfg.sysV, ah: cfg.ah, soc: sim.soc[k], batW: sim.batBus[k], servedW: sim.served[k], wasteW: sim.waste[k], solarW: sim.solar[k], solarPeakW: cfg.peak,
+      acOn: sim.unmet[k] <= 0, region: cfg.region, panel: cfg.panel, cableOhm: cfg.cableOhm, isolate: !!cfg.isolate, panelDisc: !!cfg.panelDisc, scenario: cfg.scenario || 'normal' }
   }
 
   function isAc(id) { return id === 'ac_l' || id === 'ac_n' }
@@ -74,7 +86,7 @@
     if (!w.isolate) return 'live'                                 // the DC bus is energised until the isolator is open
     if (p === 'fuse_in|fuse_out') return w.fuseBlown ? null : w.rFuse
     if (p === 'cab_bat|cab_inv') return w.cableOhm
-    if (p === 'gap1|gap2') return w.linkOhm
+    if (p === 'gap1|gap2') return w.openNeg ? null : w.linkOhm
     if (p === 'cab_bat|fuse_out') return 0
     if (p === 'fuse_in|lug') return 0
     return null                                                   // separate pieces with the isolator open: no path between them
@@ -122,8 +134,8 @@
       var series = (s.red === 'gap1' && s.black === 'gap2') || (s.red === 'gap2' && s.black === 'gap1')
       if (series) {
         if (s.jack !== 'a') { out.display = '0.00'; out.unit = 'A'; out.note = 'The red lead is in the V ohm socket: it has almost no current path, so the circuit is now open and the load side has lost power.'; out.opened = true; return out }
-        if (w.iLoad > m.fuseA) { out.blown = true; out.display = '0.00'; out.unit = 'A'; out.warn = 'The current is ' + w.iLoad.toFixed(1) + ' A and the meter\'s fuse is ' + m.fuseA + ' A: it blew. Use a clamp meter for currents above the meter\'s rating.'; return out }
-        var cur = w.iLoad; out.value = cur; out.display = cur.toFixed(cur >= 10 ? 2 : 3); out.unit = 'A DC'
+        if (w.iLoadClosed > m.fuseA) { out.blown = true; out.display = '0.00'; out.unit = 'A'; out.warn = 'The current is ' + w.iLoadClosed.toFixed(1) + ' A and the meter\'s fuse is ' + m.fuseA + ' A: it blew. Use a clamp meter for currents above the meter\'s rating.'; return out }
+        var cur = w.iLoadClosed; out.value = cur; out.display = cur.toFixed(cur >= 10 ? 2 : 3); out.unit = 'A DC'
         out.note = 'This is the current the loads draw, in the lead that returns it to the battery' + (w.charging ? '. The panel is charging the battery at the same time, so the battery\'s own net current is different.' : '.')
         return out
       }

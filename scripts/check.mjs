@@ -317,6 +317,21 @@ if (!/13\.3 to 13\.6 V/.test(text('multimeters.html')) || !/nearly flat/.test(te
   if (!/Minus sign/.test(R({ red: 'bat-', black: 'bat+' }).note)) bad('meter.js: reversed probes need the minus-sign note')
   // an empty battery: the inverter is off, so no load current anywhere
   { const w = W({ acOn: false, servedW: 0 }); near(w.iLoad, 0, 0, 'no load current with the inverter off'); near(R({ dial: 'amp', jack: 'a', red: 'gap1', black: 'gap2' }, w).value, 0, 0, 'series current with the inverter off') }
+  // the case files: every case must be solvable, and its evidence must be what the meter reads (case-by-case on the same illustrative system)
+  { const CF = JSON.parse(read('data/cases.json')), ids = new Set(CF.diagnoses.map((d) => d.id)), sys = CF.system, byId = Object.fromEntries(apps.map((a) => [a.id, a]))
+    const seen = new Set()
+    for (const c of CF.cases) {
+      if (!ids.has(c.diag)) bad(`cases.json: case ${c.id} names an unknown diagnosis`); if (seen.has(c.diag)) bad(`cases.json: two cases share the diagnosis ${c.diag}`); seen.add(c.diag)
+      const ps = { panelW: sys.panelW, psh: sys.psh, derate: model.derate, rise: model.sun.rise, set: model.sun.set, batV: sys.sysV, batAh: sys.ah, dod: model.chemistries[sys.chem].dod, chgEff: model.chemistries[sys.chem].chargeEfficiency, invEff: model.inverter.efficiency, invStandbyW: model.inverter.standbyW, loads: c.loads.map((id) => ({ w: byId[id].w, ac: byId[id].ac, from: byId[id].from, to: byId[id].to })) }
+      const sim = P.simulate(ps, 3, 15), k = Math.round(c.t * 4), pk = Math.max(...sim.solar, 1)
+      const cfg = (o) => ({ B, chem: sys.chem, sysV: sys.sysV, ah: sys.ah, peak: pk, region: B.ac.us, panel: model.panel.examples.small, cableOhm, scenario: c.scenario, ...o })
+      const w = Mt.world(Mt.inputs(sim, k, cfg({})))
+      for (const ev of c.evidence) { const r = Mt.read({ dial: ev.dial, jack: 'v', red: ev.red, black: ev.black, rel: false }, B, w); if (!(r.value >= ev.min && r.value <= ev.max) || r.blown || r.warn) bad(`cases.json: case ${c.id} evidence "${ev.what}" reads ${r.display} (${r.warn || 'range ' + ev.min + '..' + ev.max})`) }
+      // the same readings in a healthy system must NOT satisfy every item of the evidence (the evidence must discriminate)
+      const wh = Mt.world(Mt.inputs(sim, k, cfg({ scenario: 'normal' })))
+      const allHealthy = c.evidence.every((ev) => { const r = Mt.read({ dial: ev.dial, jack: 'v', red: ev.red, black: ev.black }, B, wh); return r.value >= ev.min && r.value <= ev.max })
+      if (allHealthy) bad(`cases.json: case ${c.id}'s evidence also matches a healthy system`)
+    } }
   // a dead battery shuts the inverter down
   if (!(W({ acOn: false }).acOn === false)) bad('meter.js: acOn false must switch the outlet off')
   // the dead-inverter scenario

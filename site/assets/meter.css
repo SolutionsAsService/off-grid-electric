@@ -48,3 +48,21 @@
 .vm-meter.shake { animation: vmshake .45s linear 1; }
 @keyframes vmshake { 10%, 90% { transform: translateX(-3px); } 20%, 80% { transform: translateX(6px); } 30%, 50%, 70% { transform: translateX(-9px); } 40%, 60% { transform: translateX(9px); } }
 @media (prefers-reduced-motion: reduce) { .vm-meter.shake { animation: none; } }
+
+/* lab: mode chips, case files, notebook, probe leads */
+.vm-mode { margin: 0 0 12px; }
+.vm-case { background: var(--card); border: 4px solid var(--ink); box-shadow: 8px 8px 0 var(--accent); padding: 6px 16px 14px; margin: 0 0 18px; }
+.vm-case p { max-width: 70ch; }
+.vm-dx { display: grid; gap: 8px 14px; grid-template-columns: minmax(220px, 1fr) auto; align-items: end; }
+@media (max-width: 640px) { .vm-dx { grid-template-columns: 1fr; } }
+.vm-res { font-weight: 700; min-height: 1.4em; } .vm-res.ok { color: var(--ok); } .vm-res.bad { color: var(--danger); }
+.vm-hints { margin: 4px 0 0; padding-left: 1.3em; color: var(--ink2); }
+.vm-notes { margin-top: 22px; } .vm-notes .tblwrap { max-height: 320px; overflow: auto; }
+#vm-svg .vm-body { fill: var(--volt); stroke: var(--ink); stroke-width: 3; } #vm-svg .vm-bodyt { fill: var(--on-volt); font-weight: 900; letter-spacing: .1em; }
+#vm-svg .vm-jackdot { fill: var(--ink); stroke: var(--ink); } #vm-svg .vm-jackdot.red { fill: var(--danger); stroke: var(--danger); }
+#vm-svg .vm-lead { fill: none; stroke-width: 3; stroke-linecap: round; pointer-events: none; } #vm-svg .vm-lead.red { stroke: var(--danger); } #vm-svg .vm-lead.black { stroke: var(--ink); }
+#vm-svg .vm-tip { cursor: grab; touch-action: none; } #vm-svg .vm-tip.drag { cursor: grabbing; }
+#vm-svg .vm-tiphit { fill: transparent; } #vm-svg .vm-tipdot { stroke-width: 3; } #vm-svg .vm-tip.red .vm-tipdot { fill: var(--danger); stroke: var(--bg); } #vm-svg .vm-tip.black .vm-tipdot { fill: var(--ink); stroke: var(--bg); }
+#vm-svg .vm-tipt { fill: var(--bg); font-weight: 900; font-size: 12px; pointer-events: none; }
+#vm-svg .vm-tip:focus-visible .vm-tipdot { stroke: var(--accent); }
+.vm.lab .vm-key { display: none; }
