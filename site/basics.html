@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Volts, amps, ohms and watts | Off-grid electric</title>
+  <meta name="description" content="The four quantities behind every circuit, with calculators for Ohm's law, inverter current and daily energy.">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="assets/site.css">
+</head>
+<body data-page="basics">
+<main id="main" class="wrap page">
+<p class="kicker">Basics</p>
+<h1>Volts, amps, ohms and watts</h1>
+<p class="lede">Four quantities explain almost everything on this site. Learn them once, then try each in a calculator.</p>
+<div class="notice"><b>Before you touch anything</b>This guide teaches ideas and does not replace a qualified electrician or your local electrical code. <a class="carry" href="safety.html">Read the safety limits</a>.</div>
+<h2>The four quantities</h2>
+<div class="cards">
+  <div class="card"><h3>Voltage (volts, V)</h3><p>The push between two points: the difference in electrical potential. A 12 V battery pushes harder than a 1.5 V cell. No push, no current.</p></div>
+  <div class="card"><h3>Current (amps, A)</h3><p>How much charge passes a point each second. A phone charger draws about 1 A at 5 V; a starter motor draws hundreds of amps for a moment.</p></div>
+  <div class="card"><h3>Resistance (ohms)</h3><p>How strongly a material opposes current. Thin or long wire has more; thick or short wire has less. Resistance turns electrical energy into heat.</p></div>
+  <div class="card"><h3>Power (watts, W)</h3><p>The rate energy is used: volts times amps. A 12 V pump drawing 5 A uses 60 W. Watts are a rate; energy is watts over time.</p></div>
+</div>
+<p class="small">A water-pipe picture (pressure, flow, a narrow pipe) helps with these ideas. It is an analogy: charge in a wire is not water, and the picture fails for alternating current and for magnetism.</p>
+
+<h2>Two laws</h2>
+<div class="prose"><p><strong>Ohm's law:</strong> V = I x R. <strong>Power:</strong> W = V x I. Put them together and a current of I amps through R ohms wastes I x I x R watts as heat. That last form is why thin wire carrying a big current gets warm.</p></div>
+<div class="calc" data-calc="ohm"></div>
+
+<h2>Why a 1,000 W inverter needs thick cable</h2>
+<div class="prose"><p>An inverter delivering 1,000 W from a 12 V battery draws at least 1,000 / 12 = 83 A, and more once its own losses are counted. The same power at 48 V is a quarter of the current. Try it:</p></div>
+<div class="calc" data-calc="inverter"></div>
+<div class="notice"><b>Low voltage is not low energy</b>A 12 V battery will not shock you through dry skin in normal conditions, but a battery bank can deliver hundreds of amps into a dropped wrench or a misplaced cable. The hazard is heat, molten metal and fire.</div>
+
+<h2>Energy: watts over time</h2>
+<div class="prose"><p>An appliance rated 120 W that runs for 5 hours uses 120 x 5 = 600 Wh. Batteries and electricity bills count energy: watt-hours (Wh) and kilowatt-hours (kWh, 1,000 Wh).</p></div>
+<div class="calc" data-calc="energy"></div>
+<p><a class="btn carry" href="solar.html">Next: solar panels</a></p>
+</main>
+<noscript><p class="noscript wrap">The calculators on this page need JavaScript. The explanations around them are readable without it.</p></noscript>
+<script src="assets/power.js"></script>
+<script src="assets/common.js"></script>
+<script src="assets/calc.js"></script>
+</body>
+</html>

@@ -1,0 +1,15 @@
+{
+  "note": "Resistance of solid copper wire at 20 degrees C in ohms per 1,000 feet. The gate recomputes every row from the AWG diameter formula.",
+  "rows": [
+    { "awg": "14", "n": 14, "ohmsPerKft": 2.525 },
+    { "awg": "12", "n": 12, "ohmsPerKft": 1.588 },
+    { "awg": "10", "n": 10, "ohmsPerKft": 0.9989 },
+    { "awg": "8", "n": 8, "ohmsPerKft": 0.6282 },
+    { "awg": "6", "n": 6, "ohmsPerKft": 0.3951 },
+    { "awg": "4", "n": 4, "ohmsPerKft": 0.2485 },
+    { "awg": "2", "n": 2, "ohmsPerKft": 0.1563 },
+    { "awg": "1/0", "n": 0, "ohmsPerKft": 0.09827 },
+    { "awg": "2/0", "n": -1, "ohmsPerKft": 0.07793 },
+    { "awg": "4/0", "n": -3, "ohmsPerKft": 0.04901 }
+  ]
+}

@@ -18,7 +18,7 @@ This is a static site: no build step.
 ```bash
 git clone https://github.com/SolutionsAsService/off-grid-electric
 cd off-grid-electric
-npx serve .
+node scripts/serve.mjs   # then open the printed address; run node scripts/check.mjs before sending a change
 ```
 
 Then open the printed localhost URL. Keep links relative so the site still deploys from any host.

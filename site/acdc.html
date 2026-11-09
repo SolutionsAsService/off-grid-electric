@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AC and DC | Off-grid electric</title>
+  <meta name="description" content="Direct and alternating current, mains voltage and frequency by region, what an inverter costs you, and sine wave types.">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="assets/site.css">
+</head>
+<body data-page="acdc">
+<main id="main" class="wrap page">
+<p class="kicker">AC vs DC</p>
+<h1>Direct and alternating current</h1>
+<p class="lede">Batteries and solar panels make DC. Houses and most appliances use AC. An inverter sits between them, and it is not free.</p>
+<div class="notice"><b>Before you touch anything</b>This guide teaches ideas and does not replace a qualified electrician or your local electrical code. <a class="carry" href="safety.html">Read the safety limits</a>.</div>
+<h2>The difference</h2>
+<div class="cards">
+  <div class="card"><h3>DC: one direction</h3><p>The current flows one way at a steady voltage. Solar panels, batteries, USB, cars and RVs are DC.</p></div>
+  <div class="card"><h3>AC: back and forth</h3><p>The voltage swings in a sine wave and the current reverses direction 50 or 60 times a second. The grid, generators and wall sockets are AC. Transformers can step AC voltage up and down, which is why the grid uses it.</p></div>
+</div>
+<div class="prose"><p>The "120 V" or "230 V" on an AC supply is the effective (RMS) value, the voltage that heats a resistor like a DC supply of the same number. The wave itself peaks higher: 120 V RMS peaks at about 170 V, and 230 V RMS at about 325 V (RMS x 1.414).</p></div>
+
+<h2>Mains supply by region</h2>
+<div data-calc="regions"></div>
+<p class="small">Nominal values; the allowed tolerance is wide. Check the label on any equipment you plan to run.</p>
+
+<h2>The inverter in the middle</h2>
+<div class="prose">
+  <p>An inverter changes battery DC into AC. Two numbers matter. Its <strong>efficiency</strong> is the share of battery energy that arrives as AC power; this site assumes 90%, a typical figure, so a 100 W AC load costs the battery about 111 W. Its <strong>standby</strong> draw is what it uses just by being on; this site assumes 10 W, which is 240 Wh a day.</p>
+  <p>Where you can, run lights, pumps and chargers directly on DC and keep the inverter for what needs AC. The Simulator shows what that is worth: switch loads between AC and DC items and watch the daily total.</p>
+  <h3>Pure sine or modified sine</h3>
+  <p>A pure sine wave inverter makes a clean copy of mains power and suits electronics, motors and anything with a power supply. Cheaper modified-sine inverters make a stepped wave that some equipment tolerates badly (buzzing, extra heat, reduced life). If in doubt, choose pure sine.</p>
+  <h3>Watts, volt-amps and motors</h3>
+  <p>For a heater or a lamp, watts are volts times amps. For motors and many electronics on AC, the current and voltage are out of step, so the supply must carry more volt-amps than the appliance uses in watts (the ratio is the power factor). Motors can also draw several times their running current for a moment when starting, so an inverter's surge rating matters. Both are reasons to read the label of the real appliance.</p>
+</div>
+<p><a class="btn carry" href="index.html">Try it in the Simulator</a></p>
+</main>
+<noscript><p class="noscript wrap">The calculators on this page need JavaScript. The explanations around them are readable without it.</p></noscript>
+<script src="assets/power.js"></script>
+<script src="assets/common.js"></script>
+<script src="assets/calc.js"></script>
+</body>
+</html>

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Safety limits | Off-grid electric</title>
+  <meta name="description" content="What this guide does not cover, the hazards of battery banks, solar strings and mains voltage, and what to hand to a professional.">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="assets/site.css">
+</head>
+<body data-page="safety">
+<main id="main" class="wrap page">
+<p class="kicker">Safety</p>
+<h1>What this guide cannot do</h1>
+<p class="lede">It teaches ideas and does arithmetic with typical numbers. It does not know your batteries, your cable, your climate or your code.</p>
+<div class="notice danger"><b>Not a design</b>Do not build a system from a calculator. Have the design and the work checked by a qualified electrician or installer, and follow your local electrical code and any permit and inspection rules.</div>
+
+<h2>The hazards, in plain words</h2>
+<div class="cards">
+  <div class="card"><h3>Battery banks</h3><p>A battery can deliver very large currents into a short circuit: enough to melt metal, start a fire or cause burns. Fuse close to the battery, use insulated tools, remove rings and watches, and never lay tools across terminals. Lithium and lead-acid batteries each have charging limits and venting or thermal hazards; follow the maker's instructions.</p></div>
+  <div class="card"><h3>Solar strings</h3><p>Panels make voltage whenever there is light, and the voltage rises in the cold. A string can be dangerous to touch and its DC arcs sustain themselves. You need DC-rated disconnects, fuses and connectors, and a controller whose input limit exceeds the cold-weather voltage.</p></div>
+  <div class="card"><h3>Mains voltage (AC)</h3><p>Inverter output and grid power can kill. Turn off and lock out before working, prove the circuit dead with a meter you have checked on a known live source, and leave fixed wiring to a licensed electrician.</p></div>
+  <div class="card"><h3>Meters</h3><p>Use a meter and leads rated for the voltage and the part of the system you are measuring (see the Multimeter page on CAT ratings), and never measure current across a battery or panel.</p></div>
+</div>
+<h2>What to hand to a professional</h2>
+<div class="prose"><ul>
+  <li>Anything that connects to the grid or to a building's fixed wiring.</li>
+  <li>Cable and fuse selection for a battery bank (the calculators here show voltage drop only).</li>
+  <li>Grounding and bonding, disconnects, and rapid-shutdown or labelling rules for solar.</li>
+  <li>Any system with a string voltage above your controller's limit on a cold morning, or above what you can measure safely.</li>
+</ul></div>
+<h2>What the numbers here are</h2>
+<div class="prose"><p>Appliance watts, sun hours, efficiencies and depth-of-discharge limits are typical planning values printed on the Simulator page. They are not measurements of your equipment. Panel, battery and inverter datasheets and your own meter readings replace them.</p></div>
+<p><a class="btn carry" href="index.html">Back to the Simulator</a></p>
+</main>
+<noscript><p class="noscript wrap">The calculators on this page need JavaScript. The explanations around them are readable without it.</p></noscript>
+<script src="assets/power.js"></script>
+<script src="assets/common.js"></script>
+</body>
+</html>

@@ -1,0 +1,10 @@
+[
+  { "id": "fridge", "name": "Efficient fridge", "w": 40, "ac": true, "from": 0, "to": 24, "on": true, "note": "average draw over 24 hours, not the running peak" },
+  { "id": "lights", "name": "LED lights", "w": 24, "ac": false, "from": 18, "to": 23, "on": true, "note": "six 4 W bulbs on 12 V DC" },
+  { "id": "router", "name": "Router and phone chargers", "w": 12, "ac": false, "from": 0, "to": 24, "on": true, "note": "on 12 V DC" },
+  { "id": "laptop", "name": "Laptop", "w": 50, "ac": true, "from": 9, "to": 13, "on": true, "note": "charging and working, through the inverter" },
+  { "id": "pump", "name": "Water pump", "w": 60, "ac": false, "from": 7, "to": 8, "on": true, "note": "a 12 V pump for one hour a day" },
+  { "id": "tv", "name": "Television", "w": 80, "ac": true, "from": 19, "to": 22, "on": false, "note": "a 32 to 40 inch LED set" },
+  { "id": "microwave", "name": "Microwave", "w": 1500, "ac": true, "from": 12, "to": 12.25, "on": false, "note": "a 1,000 W oven draws about 1,500 W; 15 minutes a day" },
+  { "id": "kettle", "name": "Electric kettle", "w": 1800, "ac": true, "from": 7, "to": 7.25, "on": false, "note": "15 minutes a day" }
+]

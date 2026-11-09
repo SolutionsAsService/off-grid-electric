@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Solar panels | Off-grid electric</title>
+  <meta name="description" content="Panel ratings, peak sun hours, building a string, and why cold weather raises voltage.">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="assets/site.css">
+</head>
+<body data-page="solar">
+<main id="main" class="wrap page">
+<p class="kicker">Solar</p>
+<h1>Solar panels, ratings and strings</h1>
+<p class="lede">A panel's label says what it makes in a laboratory. This page shows what that becomes in a day, and the one number that can destroy equipment: cold-weather voltage.</p>
+<div class="notice"><b>Before you touch anything</b>This guide teaches ideas and does not replace a qualified electrician or your local electrical code. <a class="carry" href="safety.html">Read the safety limits</a>.</div>
+<div class="notice danger"><b>Panels are live whenever there is light</b>You cannot switch a panel off by switching off the loads. A string of panels can carry a dangerous voltage, and a DC arc does not go out by itself. Wiring, disconnects and fuses for panels must follow your local code.</div>
+
+<h2>The label</h2>
+<div class="prose">
+  <p>Panel ratings are measured at standard test conditions (STC): 1,000 watts of sunlight per square metre, a cell temperature of 25 C and a defined light spectrum. A real roof is hotter, dustier and rarely at 1,000 W per square metre, so output is lower than the label.</p>
+</div>
+<div class="tblwrap"><table class="t"><caption>The five numbers on a panel's datasheet</caption><thead><tr><th scope="col">Symbol</th><th scope="col">Name</th><th scope="col">What it is</th></tr></thead><tbody>
+<tr><th scope="row">Pmax</th><td>Maximum power</td><td>Watts at STC. The headline rating.</td></tr>
+<tr><th scope="row">Voc</th><td>Open-circuit voltage</td><td>The voltage with nothing connected. The highest the panel makes at 25 C, and the one that sets safety limits.</td></tr>
+<tr><th scope="row">Vmp</th><td>Voltage at maximum power</td><td>The voltage while delivering full power. Lower than Voc.</td></tr>
+<tr><th scope="row">Imp</th><td>Current at maximum power</td><td>Amps at full power. Pmax is about Vmp x Imp.</td></tr>
+<tr><th scope="row">Isc</th><td>Short-circuit current</td><td>The most the panel can push into a fault. Slightly above Imp.</td></tr>
+</tbody></table></div>
+
+<h2>From label to day: peak sun hours</h2>
+<div class="prose">
+  <p>One <strong>peak sun hour</strong> is an hour of sunlight at 1,000 W per square metre, the STC level. A place with 4.5 peak sun hours receives, over a whole day, as much energy as 4.5 hours of full-strength sun. Typical figures run from about 3 to 6, set by your latitude, weather and season.</p>
+  <p>Daily energy = panel watts x peak sun hours x derate. A 400 W panel at 4.5 peak sun hours and a derate of 0.75 gives 400 x 4.5 x 0.75 = 1,350 Wh. The derate stands for heat, dust, wiring and charger losses; 0.75 is a typical planning figure, not a measurement of any panel.</p>
+</div>
+
+<h2>Panels in series and parallel</h2>
+<div class="prose"><p>In <strong>series</strong> the voltages add and the current stays the same. In <strong>parallel</strong> the currents add and the voltage stays the same. A charge controller has a maximum input voltage; the string's voltage on the coldest clear morning must stay below it.</p></div>
+<div class="calc" data-calc="string"></div>
+<div class="prose">
+  <p>Two panels with Voc 44.6 V in series make 89.2 V at 25 C. On a morning at minus 10 C the same string is higher still, because panel voltage rises as it gets colder (about 0.3% per degree C for crystalline silicon). A controller rated at 100 V that looks safe on paper can be beyond its limit.</p>
+</div>
+
+<h2>Charge controllers</h2>
+<div class="prose">
+  <p>A controller sits between the panels and the battery. A <strong>PWM</strong> controller connects the panel to the battery directly and switches it on and off to regulate charging, so the panel works at the battery's voltage. An <strong>MPPT</strong> controller converts voltage so the panel can run at its best-power voltage, which can harvest more energy, especially with higher-voltage strings or a low battery. How much more depends on conditions and equipment; check the datasheet.</p>
+</div>
+<h2>What this page does not cover</h2>
+<div class="prose"><p>Shading, orientation and tilt, mounting, grounding, rapid-shutdown rules, combiner boxes and DC disconnects. These decide whether an installation is safe and legal; ask an installer who works to your local code.</p></div>
+<p><a class="btn carry" href="system.html">Next: size a system</a></p>
+</main>
+<noscript><p class="noscript wrap">The calculators on this page need JavaScript. The explanations around them are readable without it.</p></noscript>
+<script src="assets/power.js"></script>
+<script src="assets/common.js"></script>
+<script src="assets/calc.js"></script>
+</body>
+</html>

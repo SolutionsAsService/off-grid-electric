@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Size it: panels, battery, wire | Off-grid electric</title>
+  <meta name="description" content="A load budget, panels and battery sized from it with the arithmetic shown, and a voltage-drop check for cable.">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="assets/site.css">
+</head>
+<body data-page="system">
+<main id="main" class="wrap page">
+<p class="kicker">Size it</p>
+<h1>From loads to panels, battery and wire</h1>
+<p class="lede">Sizing is arithmetic. Add up what you use, divide by what the sun gives, and cover the nights. Every step is shown, with the margin printed.</p>
+<div class="notice"><b>Before you touch anything</b>This guide teaches ideas and does not replace a qualified electrician or your local electrical code. <a class="carry" href="safety.html">Read the safety limits</a>.</div>
+<h2>The steps</h2>
+<ol>
+  <li>List every load with its watts and hours a day (the Simulator carries your list here).</li>
+  <li>Convert to watt-hours at the battery, counting the inverter's losses for AC loads.</li>
+  <li>Divide by peak sun hours and the derate to get panel watts; add a margin.</li>
+  <li>Cover the nights, and days without sun, with a battery sized to its usable depth.</li>
+  <li>Choose a system voltage that keeps current, wire and fuses reasonable.</li>
+  <li>Check cable voltage drop, then have the whole design reviewed against your local code.</li>
+</ol>
+<div class="calc" data-calc="budget"></div>
+<div class="calc" data-calc="sizing"></div>
+
+<h2>Cable and fuse</h2>
+<div class="prose"><p>Every cable loses voltage in proportion to its length and the current. Low-voltage systems feel this most, because the same power is more current. Put the cable's length and current in below.</p></div>
+<div class="calc" data-calc="wire"></div>
+<div class="notice danger"><b>Fuses protect the wire, not the equipment</b>A fuse or breaker must open before the wire overheats, and the wire's safe current depends on its insulation, temperature, bundling and your code. A battery bank needs a fuse close to its positive terminal, because a short circuit there has nothing else to limit it.</div>
+<p><a class="btn carry" href="safety.html">Safety limits</a></p>
+</main>
+<noscript><p class="noscript wrap">The calculators on this page need JavaScript. The explanations around them are readable without it.</p></noscript>
+<script src="assets/power.js"></script>
+<script src="assets/common.js"></script>
+<script src="assets/calc.js"></script>
+</body>
+</html>

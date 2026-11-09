@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>The multimeter, setting by setting | Off-grid electric</title>
+  <meta name="description" content="What each multimeter setting measures, how to connect it, the readings to expect from batteries and solar panels, and the safety rules.">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="assets/site.css">
+</head>
+<body data-page="multimeters">
+<main id="main" class="wrap page">
+<p class="kicker">Multimeter</p>
+<h1>The multimeter, setting by setting</h1>
+<p class="lede">A multimeter measures voltage, current and resistance in one case. It tells you what is happening inside a circuit without taking it apart, if you connect it the right way.</p>
+<div class="notice"><b>Before you touch anything</b>This guide teaches ideas and does not replace a qualified electrician or your local electrical code. <a class="carry" href="safety.html">Read the safety limits</a>.</div>
+<h2>Ports and leads</h2>
+<div class="tblwrap"><table class="t"><caption>Almost every meter has these four sockets</caption><thead><tr><th scope="col">Socket</th><th scope="col">Lead</th><th scope="col">Use</th></tr></thead><tbody>
+<tr><th scope="row">COM</th><td>Black</td><td>The reference. The black lead nearly never moves.</td></tr>
+<tr><th scope="row">V, ohm (and Hz, diode, capacitance)</th><td>Red</td><td>Voltage, resistance, continuity, diode test and most other measurements.</td></tr>
+<tr><th scope="row">mA / uA</th><td>Red</td><td>Small currents. Fused inside. Never use it on a motor or a battery bank.</td></tr>
+<tr><th scope="row">10 A (or 20 A)</th><td>Red</td><td>Large currents, for short times. Move the red lead back to the voltage socket as soon as you finish; leaving it here is the classic beginner mistake.</td></tr>
+</tbody></table></div>
+
+<h2>The dial</h2>
+<div class="tblwrap"><table class="t"><caption>What each setting is for</caption><thead><tr><th scope="col">Setting</th><th scope="col">Measures</th><th scope="col">Notes</th></tr></thead><tbody>
+<tr><th scope="row">DC voltage (V with a straight and a dotted line)</th><td>Battery, panel, controller, 12 V circuits</td><td>Probes in parallel, across the two points. A reading with a minus sign means the probes are reversed.</td></tr>
+<tr><th scope="row">AC voltage (V with a wavy line)</th><td>Sockets, generators, inverter output</td><td>Check which region's supply to expect on the AC page.</td></tr>
+<tr><th scope="row">Resistance (ohm)</th><td>Components and wire</td><td>Power off first. Measuring resistance on a live circuit gives a wrong reading and can damage the meter.</td></tr>
+<tr><th scope="row">Continuity (a sound symbol)</th><td>Is there a path?</td><td>The meter beeps when the resistance is below a threshold. The threshold depends on the meter (often tens of ohms), so confirm a doubtful reading in the resistance setting. Power off.</td></tr>
+<tr><th scope="row">Current (A, mA)</th><td>Amps through a circuit</td><td>The meter goes in series, in the path of the current. Never across a battery or panel: that is a short circuit through the meter's fuse.</td></tr>
+<tr><th scope="row">Diode test</th><td>Forward voltage drop</td><td>A healthy silicon diode reads roughly 0.5 to 0.8 V one way and open (OL) the other.</td></tr>
+<tr><th scope="row">Capacitance, Hz, duty cycle</th><td>Farads, cycles per second, percent on-time</td><td>Duty cycle is useful on PWM signals such as some charge controllers: 25% is on a quarter of the time.</td></tr>
+<tr><th scope="row">Temperature</th><td>Thermocouple input</td><td>Useful for battery terminals, enclosures and heatsinks.</td></tr>
+<tr><th scope="row">NCV</th><td>Non-contact voltage detector</td><td>An indicator only. Confirm with the AC voltage setting before working.</td></tr>
+<tr><th scope="row">HOLD, REL, MIN/MAX</th><td>Freeze, zero, record extremes</td><td>REL subtracts the stored reading (for example the leads' own resistance). MIN/MAX is handy for watching a charging system.</td></tr>
+<tr><th scope="row">Auto or manual range</th><td>How the meter picks its scale</td><td>On a manual meter start on the highest range and work down.</td></tr>
+</tbody></table></div>
+
+<h2>What to expect from a battery</h2>
+<div class="prose"><p>A resting battery's voltage hints at its charge, but only after several hours with no load or charging, at room temperature, and only for the right chemistry. For a lead-acid battery the table below is a rough guide:</p></div>
+<div data-calc="rest"></div>
+<div class="notice"><b>LiFePO4 is different</b>A 12 V (12.8 V nominal) LiFePO4 battery rests at about 13.3 to 13.6 V when full, and its voltage stays nearly flat between roughly 20% and 90% charge. You cannot read its state of charge from a multimeter; use a battery monitor that counts amp-hours. Reading 12.6 V on one does not mean "full".</div>
+<div class="tblwrap"><table class="t"><caption>Typical charging voltages on a 12 V battery (follow your battery maker's datasheet)</caption><thead><tr><th scope="col">Battery</th><th scope="col">Stage</th><th scope="col" class="n">Volts</th></tr></thead><tbody>
+<tr><th scope="row">Lead-acid</th><td>Absorption (charging)</td><td class="n">14.4 to 14.8</td></tr>
+<tr><th scope="row">Lead-acid</th><td>Float (held full)</td><td class="n">13.5 to 13.8</td></tr>
+<tr><th scope="row">LiFePO4</th><td>Charging</td><td class="n">14.2 to 14.6</td></tr>
+</tbody></table></div>
+<p class="small">Higher system voltages multiply these: a 24 V bank is double, a 48 V bank is four times.</p>
+
+<h2>What to expect from a solar panel</h2>
+<div class="prose"><p>An unloaded panel reads its open-circuit voltage (Voc). A panel made for 12 V systems typically reads about 21 to 23 V in sun with nothing connected, and about 18 V (its Vmp) while delivering full power. A larger 400 W panel has a Voc around 44 V. Panels in series add: two panels with a Voc of 44.6 V read 89.2 V. Voltage rises further in the cold; see the Solar page. Use a meter and leads rated for the full string voltage, and see the CAT note below.</p></div>
+
+<h2>Units and prefixes</h2>
+<div class="tblwrap"><table class="t"><caption>Prefixes on a meter's display</caption><thead><tr><th scope="col">Prefix</th><th scope="col">Symbol</th><th scope="col" class="n">Multiplier</th><th scope="col">Example</th></tr></thead><tbody>
+<tr><th scope="row">micro</th><td>u</td><td class="n">0.000001</td><td>1 uA = 0.000001 A</td></tr>
+<tr><th scope="row">milli</th><td>m</td><td class="n">0.001</td><td>1000 mA = 1 A</td></tr>
+<tr><th scope="row">(none)</th><td></td><td class="n">1</td><td>1 V = 1 volt</td></tr>
+<tr><th scope="row">kilo</th><td>k</td><td class="n">1,000</td><td>1 kohm = 1,000 ohm</td></tr>
+<tr><th scope="row">mega</th><td>M</td><td class="n">1,000,000</td><td>1 Mohm = 1,000,000 ohm</td></tr>
+<tr><th scope="row">giga</th><td>G</td><td class="n">1,000,000,000</td><td>1 GW = 1,000,000,000 W</td></tr>
+</tbody></table></div>
+<div class="tblwrap"><table class="t"><caption>Reading the display</caption><thead><tr><th scope="col">Display</th><th scope="col">Meaning</th></tr></thead><tbody>
+<tr><th scope="row">OL</th><td>Over limit, open circuit or infinite resistance, depending on the setting</td></tr>
+<tr><th scope="row">0.00</th><td>No measurable voltage or a good short</td></tr>
+<tr><th scope="row">1 (alone, on some old meters)</th><td>Out of range</td></tr>
+<tr><th scope="row">-12.6</th><td>Probes reversed on a DC voltage</td></tr>
+</tbody></table></div>
+<div class="prose"><p>Common relationships: 1 W = 1 V x 1 A. 1,000 W = 1 kW. 1,000 mA = 1 A. 1 kWh = 1,000 Wh. A 60 Hz supply is typical of North America and a 50 Hz supply of much of the world; see the AC page for the list.</p></div>
+
+<h2>CAT ratings</h2>
+<div class="prose"><p>A meter's CAT rating (CAT II, III or IV) with a voltage figure (for example "CAT III 600 V") tells you how much transient energy it is built to withstand on a given part of a building's wiring. Roughly, CAT II covers sockets and appliances, CAT III covers distribution boards and fixed installations, CAT IV covers the supply entrance. Use a meter and leads rated for the system you are measuring. A rating for AC wiring is not a promise for a high-voltage DC solar string: confirm the meter is rated for that DC voltage, and if it is not, do not measure it.</p></div>
+
+<h2>Safety rules</h2>
+<div class="prose"><ul>
+  <li><strong>Resistance and continuity only with power off.</strong></li>
+  <li><strong>Never put the meter in current mode across a battery or panel.</strong> The short circuit blows the fuse or the meter.</li>
+  <li><strong>Check the red lead's socket</strong> before every measurement, and put it back to the voltage socket after current.</li>
+  <li><strong>Inspect the leads.</strong> Do not use cracked or damaged insulation.</li>
+  <li><strong>Prove your meter</strong> on a known live source before trusting a "dead" reading, and again after.</li>
+  <li><strong>Know the rating</strong> of the meter and the system, and stop if you are not sure.</li>
+</ul></div>
+</main>
+<noscript><p class="noscript wrap">The calculators on this page need JavaScript. The explanations around them are readable without it.</p></noscript>
+<script src="assets/power.js"></script>
+<script src="assets/common.js"></script>
+<script src="assets/calc.js"></script>
+</body>
+</html>

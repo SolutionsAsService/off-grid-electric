@@ -1,0 +1,10 @@
+{
+  "regions": [
+    { "name": "United States and Canada", "v": "120 V", "hz": "60 Hz", "note": "Homes also have 240 V from two 120 V lines 180 degrees apart (split phase) for large loads" },
+    { "name": "United Kingdom", "v": "230 V", "hz": "50 Hz", "note": "" },
+    { "name": "Most of the European Union", "v": "230 V", "hz": "50 Hz", "note": "Older equipment may be labelled 220 or 240 V; the allowed range is wide" },
+    { "name": "Australia", "v": "230 V", "hz": "50 Hz", "note": "" },
+    { "name": "India", "v": "230 V", "hz": "50 Hz", "note": "" },
+    { "name": "Japan", "v": "100 V", "hz": "50 Hz east, 60 Hz west", "note": "The country has both frequencies" }
+  ]
+}
