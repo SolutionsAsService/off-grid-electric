@@ -52,7 +52,7 @@ OG.boot(function (G) {
     n.addEventListener('change', function () { var v = parseFloat(n.value); if (!isFinite(v) || v < k.min) { v = k.min } k.set(v); update() })
   })
   function paintKnobs() {
-    KNOBS.forEach(function (k) { var v = k.get(), r = byId('k-' + k.id), n = byId('n-' + k.id); r.value = v; n.value = v; r.setAttribute('aria-valuetext', k.text(v)); byId('o-' + k.id).textContent = k.text(v).split(',')[0] })
+    KNOBS.forEach(function (k) { var v = k.get(), r = byId('k-' + k.id), n = byId('n-' + k.id); r.value = v; n.value = v; r.setAttribute('aria-valuetext', k.text(v)); byId('o-' + k.id).textContent = k.text(v).split(',')[0].replace(/ (watts|hours)$/, function (m) { return m }) })
     document.querySelectorAll('.chip[data-c]').forEach(function (c) { c.setAttribute('aria-pressed', String(c.getAttribute('data-c') === S.c)) })
     document.querySelectorAll('.chip[data-v]').forEach(function (c) { c.setAttribute('aria-pressed', String(+c.getAttribute('data-v') === S.v)) })
   }
