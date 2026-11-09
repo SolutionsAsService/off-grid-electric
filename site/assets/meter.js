@@ -36,7 +36,7 @@
     var B = i.B, sc = B.scene, w = { nodes: {}, live: {}, I: 0, iLoad: 0, charging: false, regulating: false, acV: 0, acHz: 0, acOn: false }
     var ocv = M.ocv(B, i.chem, i.soc, i.sysV), rint = M.rint(B, i.chem, i.ah, i.sysV)
     var cut = i.isolate || i.scenario === 'blownFuse'                       // the load side is dead
-    var iLoad = cut ? 0 : Math.max(0, i.servedW) / Math.max(ocv, 1)          // amps the loads draw through the fuse and the cable
+    var iLoad = (cut || i.acOn === false) ? 0 : Math.max(0, i.servedW) / Math.max(ocv, 1)          // amps the loads draw through the fuse and the cable
     var panelOn = !i.isolate && !i.panelDisc && i.scenario !== 'panelOpen' && i.solarW > 1
     var iBat = i.isolate ? 0 : i.batW / Math.max(ocv, 1)                      // net current at the battery posts: + charging, - discharging
     if (i.scenario === 'blownFuse') iBat = Math.max(0, iBat)                   // the loads are cut off; only the panel can still charge

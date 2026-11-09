@@ -303,6 +303,20 @@ if (!/13\.3 to 13\.6 V/.test(text('multimeters.html')) || !/nearly flat/.test(te
   { const w = W({ solarW: 300, solarPeakW: 350, batW: 0, soc: 1, servedW: 0, wasteW: 250 }); near(R({}, w).value, B.charge12.lifepo4.float, 1e-9, 'float voltage on a full battery'); if (!(R({ red: 'pv+', black: 'pv-' }, w).value > 20)) bad('meter.js: held-off panel should read near Voc') }
   // 24 V and 48 V: voltages scale with the number of 12 V units
   for (const sv of [24, 48]) { const w = W({ sysV: sv, panelDisc: true, solarW: 300, solarPeakW: 350 }); near(R({ red: 'pv+', black: 'pv-' }, w).value / (sv / 12), R({ red: 'pv+', black: 'pv-' }, W({ panelDisc: true, solarW: 300, solarPeakW: 350 })).value, 1e-9, `Voc scales to ${sv} V`); near(Mt.rint(B, 'lifepo4', 200, sv), (sv / 12) * B.rintOhmAh.lifepo4 / 200, 1e-12, `internal resistance at ${sv} V`) }
+  // independent figures that pin the remaining constants (a mutant that changes one must fail here)
+  { const w = W({ servedW: 500, batW: -500 }), i5 = 500 / Mt.ocv(B, 'lifepo4', 0.8, 12), nv = (id) => w.nodes[id]
+    near(nv('bat+') - nv('lug'), i5 * 0.0005, 1e-6, 'joint resistance at a healthy post'); near(nv('fuse_in') - nv('fuse_out'), i5 * B.scene.fuseOhm, 1e-6, 'drop across the fuse')
+    near(nv('cab_bat') - nv('cab_inv'), i5 * cableOhm, 1e-6, 'drop across the cable'); near(w.acHz, 60, 0, 'AC frequency') }
+  { const sun = { solarW: 175, solarPeakW: 350, batW: 150, soc: 0.5 }  // f = 0.5
+    for (const sv of [12, 24, 48]) { const n = sv / 12; near(R({ red: 'pv+', black: 'pv-' }, W({ ...sun, sysV: sv })).value, n * 18.4 * (0.92 + 0.08 * 0.5), 1e-9, `Vmp at ${sv} V and half sun`); near(R({ red: 'pv+', black: 'pv-' }, W({ ...sun, sysV: sv, panelDisc: true })).value, n * 22.5 * (0.85 + 0.15 * 0.5), 1e-9, `Voc at ${sv} V and half sun`) } }
+  { const a = W({ soc: 0.5, solarW: 300, solarPeakW: 350, batW: 4, servedW: 0 }); if (!a.charging) bad('meter.js: 4 A of charging must count as charging (threshold)'); const b = W({ soc: 1, solarW: 300, solarPeakW: 350, batW: 0, servedW: 0, wasteW: 5 }); if (!b.regulating) bad('meter.js: 5 W wasted in sun is a controller holding off') }
+  { const lo = R({ jack: 'a', red: 'fuse_in', black: 'fuse_out' }, W({ servedW: 100, batW: -100 })); if (lo.blown) bad('meter.js: the 10 A socket across a 0.01 V fuse drop must not blow'); if (!R({ jack: 'a', red: 'bat+', black: 'cab_inv' }, W({ servedW: 3000, batW: -3000 })).blown) bad('meter.js: the 10 A socket across 0.5 V or more must blow')
+    if (!R({ dial: 'amp', jack: 'v', red: 'fuse_in', black: 'cab_inv' }, W({ servedW: 1000, batW: -1000 })).blown) bad('meter.js: current mode across 0.5 V is 50 A through the shunt and must blow')
+    if (!R({ dial: 'amp', jack: 'v', red: 'fuse_in', black: 'cab_inv' }, W({ servedW: 280, batW: -280 })).blown) bad('meter.js: a shunt across 0.15 V is 15 A: it must blow')
+    if (R({ dial: 'amp', jack: 'a', red: 'bat+', black: 'lug' }, W({ servedW: 1000, batW: -1000 })).blown) bad('meter.js: a shunt across a 0.04 V drop is 4 A: allowed') }
+  if (!/Minus sign/.test(R({ red: 'bat-', black: 'bat+' }).note)) bad('meter.js: reversed probes need the minus-sign note')
+  // an empty battery: the inverter is off, so no load current anywhere
+  { const w = W({ acOn: false, servedW: 0 }); near(w.iLoad, 0, 0, 'no load current with the inverter off'); near(R({ dial: 'amp', jack: 'a', red: 'gap1', black: 'gap2' }, w).value, 0, 0, 'series current with the inverter off') }
   // a dead battery shuts the inverter down
   if (!(W({ acOn: false }).acOn === false)) bad('meter.js: acOn false must switch the outlet off')
   // the dead-inverter scenario

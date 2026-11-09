@@ -84,7 +84,7 @@ OG.boot(function (G) {
         g.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setProbe(n.id) } })
         el(g, 'circle', { cx: X(c[0]), cy: Y(c[1]), r: 22, class: 'vm-hit' }); el(g, 'circle', { cx: X(c[0]), cy: Y(c[1]), r: 15, class: 'vm-pt' }); el(g, 'text', { x: X(c[0]), y: Y(c[1]) + 5, 'text-anchor': 'middle', class: 'vm-n' }, n.num)
         var ring = el(g, 'circle', { cx: X(c[0]), cy: Y(c[1]), r: 20, class: 'vm-ring', visibility: 'hidden' })
-        var tag = el(g, 'text', { x: X(c[0]) + 17, y: Y(c[1]) - 14, class: 'vm-tag' }, ''), v = el(g, 'text', { x: X(c[0]), y: Y(c[1]) + 31, 'text-anchor': 'middle', class: 'vm-v' }, '')
+        var tag = el(g, 'text', { x: X(c[0]) + 19, y: Y(c[1]) + 4, class: 'vm-tag' }, ''), v = el(g, 'text', { x: X(c[0]), y: Y(c[1]) + 31, 'text-anchor': 'middle', class: 'vm-v' }, '')
         nodeEls[n.id] = { g: g, ring: ring, tag: tag, v: v, x: X(c[0]), y: Y(c[1]) }
       })
       paint()
