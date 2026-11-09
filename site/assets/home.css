@@ -1,8 +1,8 @@
 /* Landing layout and the two SVG pictures. The SVGs are drawn in real pixels (viewBox = their width) by home.js, so the font sizes here are the sizes you read. */
-.hero { padding-top: 14px; padding-bottom: 28px; display: grid; gap: 10px 28px; grid-template-columns: 1fr; grid-template-areas: "hd" "stage" "verdict" "panel" "plot"; }
-.hd { grid-area: hd; } .stage { grid-area: stage; } .verdict { grid-area: verdict; } .panelbox { grid-area: panel; } .plotbox { grid-area: plot; }
+.hero { padding-top: 14px; padding-bottom: 28px; display: grid; gap: 10px 28px; grid-template-columns: 1fr; grid-template-areas: "hd" "stage" "panel" "verdict" "knob" "plot"; }
+.hd { grid-area: hd; } .stage { grid-area: stage; } .verdict { grid-area: verdict; } .panelbox { grid-area: panel; } .knobbox { grid-area: knob; } .plotbox { grid-area: plot; }
 @media (min-width: 1000px) {
-  .hero { grid-template-columns: minmax(300px, 400px) minmax(0, 1fr); grid-template-areas: "hd hd" "stage stage" "panel verdict" "panel plot"; align-items: start; }
+  .hero { grid-template-columns: minmax(300px, 400px) minmax(0, 1fr); grid-template-areas: "hd hd" "stage stage" "panel verdict" "knob plot"; align-items: start; }
 }
 .hero h1 { font-size: clamp(1.7rem, 3.4vw, 2.5rem); max-width: none; margin-bottom: 4px; }
 .hero .lede { font-size: 1rem; margin: 0 0 2px; max-width: 80ch; }
